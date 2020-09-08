@@ -24,10 +24,12 @@ public class AuditClient {
         String officer = "Madre Teresa";
         Party party = Party.BUFFALO;
         Integer table = 1004;
+
         registerAuditOfficerThread(service, officer, party, table, handler);
+
     }
 
-    public static void registerAuditOfficerThread(AuditService service, String officer, Party party, Integer table, PartyVoteHandler handler){
+    private static void registerAuditOfficerThread(AuditService service, String officer, Party party, Integer table, PartyVoteHandler handler){
         Runnable r = () -> {
             try {
                 service.registerAuditOfficer(officer, party, table, handler);
@@ -36,13 +38,7 @@ public class AuditClient {
             } catch (ElectionsInProgressException e) {
                 LOG.error("Elections in progress. Can no longer register audit officers");
             }
-            LOG.info("Fiscal of {} registered on polling place {}", party.toString(), table); // TODO LOG OR PRINTF?
-
-            try {
-                service.notifyPartyVote(new Vote(party, table));
-            } catch (RemoteException e) {
-                LOG.error("Error notifying new vote");
-            }
+            System.out.format("Fiscal of %s registered on polling place %s\n", party.toString(), table);
         };
         Thread t = new Thread(r);
         t.start();

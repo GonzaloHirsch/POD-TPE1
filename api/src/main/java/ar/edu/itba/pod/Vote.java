@@ -1,6 +1,8 @@
 package ar.edu.itba.pod;
 
-public class Vote {
+import java.io.Serializable;
+
+public class Vote implements Serializable {
     private Party party;
     private Integer table; // FIXME puede ser int -> como prefieran
 

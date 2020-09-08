@@ -24,11 +24,13 @@ import java.rmi.server.UnicastRemoteObject;
 <span class="nc" id="L24">        String officer = &quot;Madre Teresa&quot;;</span>
 <span class="nc" id="L25">        Party party = Party.BUFFALO;</span>
 <span class="nc" id="L26">        Integer table = 1004;</span>
-<span class="nc" id="L27">        registerAuditOfficerThread(service, officer, party, table, handler);</span>
-<span class="nc" id="L28">    }</span>
+
+<span class="nc" id="L28">        registerAuditOfficerThread(service, officer, party, table, handler);</span>
+
+<span class="nc" id="L30">    }</span>
 
     public static void registerAuditOfficerThread(AuditService service, String officer, Party party, Integer table, PartyVoteHandler handler){
-<span class="nc" id="L31">        Runnable r = () -&gt; {</span>
+<span class="nc" id="L33">        Runnable r = () -&gt; {</span>
             try {
                 service.registerAuditOfficer(officer, party, table, handler);
             } catch (RemoteException e) {
@@ -41,12 +43,13 @@ import java.rmi.server.UnicastRemoteObject;
             try {
                 service.notifyPartyVote(new Vote(party, table));
             } catch (RemoteException e) {
+                e.printStackTrace();
                 LOG.error(&quot;Error notifying new vote&quot;);
             }
         };
-<span class="nc" id="L47">        Thread t = new Thread(r);</span>
-<span class="nc" id="L48">        t.start();</span>
-<span class="nc" id="L49">    }</span>
+<span class="nc" id="L50">        Thread t = new Thread(r);</span>
+<span class="nc" id="L51">        t.start();</span>
+<span class="nc" id="L52">    }</span>
 }
 
 </pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.1.201405082137</span></div></body></html>
