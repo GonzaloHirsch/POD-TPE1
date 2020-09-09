@@ -4,6 +4,7 @@ import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.client.arguments.ManagementClientArguments;
 import ar.edu.itba.pod.client.arguments.QueryClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.exceptions.ElectionNotStartedException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ import java.util.Map;
 public class QueryClient {
     private static final Logger LOG = LoggerFactory.getLogger(QueryClient.class);
 
-    public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException, InterruptedException {
+    public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException {
         LOG.info("QueryClient has started...");
 
         QueryClientArguments clientArguments = new QueryClientArguments();
@@ -36,12 +37,23 @@ public class QueryClient {
         final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/queryService");
 
         if(clientArguments.getProvinceName().equals("") && clientArguments.getTableID() == null){
-            List<Map.Entry<Party, Long>> nationalResults = service.getNationalResults();
+            try {
+                List<Map.Entry<Party, Long>> nationalResults = service.getNationalResults();
+            } catch (ElectionNotStartedException e) {
+                e.printStackTrace();
+            }
         }else if(clientArguments.getTableID() != null){
-            List<Map.Entry<Party, Long>> tableResults = service.getTableResults(clientArguments.getTableID());
+            try {
+                List<Map.Entry<Party, Long>> tableResults = service.getTableResults(clientArguments.getTableID());
+            } catch (ElectionNotStartedException e) {
+                e.printStackTrace();
+            }
         }else{
-            List<Map.Entry<Party, Long>> stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
-
+            try {
+                List<Map.Entry<Party, Long>> stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
+            } catch (ElectionNotStartedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
