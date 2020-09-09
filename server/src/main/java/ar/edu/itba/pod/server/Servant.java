@@ -6,10 +6,12 @@ import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import java.rmi.RemoteException;
 import java.util.*;
 
-import ar.edu.itba.pod.server.Callables.FptpBatch;
-import ar.edu.itba.pod.server.Callables.SpavBatch;
-import ar.edu.itba.pod.server.Callables.StarBatch;
-import jdk.internal.util.xml.impl.Pair;
+import ar.edu.itba.pod.server.callables.FptpBatch;
+import ar.edu.itba.pod.server.callables.SpavBatch;
+import ar.edu.itba.pod.server.callables.StarBatch;
+import ar.edu.itba.pod.server.models.NationalElection;
+import ar.edu.itba.pod.server.models.StateElection;
+import ar.edu.itba.pod.server.models.Table;
 
 import java.util.concurrent.*;
 
