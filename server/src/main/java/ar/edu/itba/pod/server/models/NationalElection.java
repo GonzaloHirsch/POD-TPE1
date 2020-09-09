@@ -10,7 +10,7 @@ public class NationalElection {
     private final Map<Party, Long> scoringRoundResults = new HashMap<>();
     private final Map<Party, Double> automaticRunoffResult = new HashMap<>();
 
-    NationalElection() { }
+    public NationalElection() { }
 
     public int addSparBallots(List<Map<Party, Long>> newBallots) {
         synchronized (this.ballots) {
