@@ -5,24 +5,18 @@ import java.util.List;
 import java.util.Map;
 
 public class Vote implements Serializable {
-    private final Party party;
     private final Province province;
     private final Integer table; // FIXME puede ser int -> como prefieran
     private final Party fptpVote;
     private final Map<Party, Long> starVote;
     private final List<Party> spavVote;
 
-    public Vote(Party party, Province province, Integer table, Party fptpVote, Map<Party, Long> starVote, List<Party> spavVote) {
-        this.party = party;
+    public Vote(Province province, Integer table, Party fptpVote, Map<Party, Long> starVote, List<Party> spavVote) {
         this.table = table;
         this.province = province;
         this.fptpVote = fptpVote;
         this.starVote = starVote;
         this.spavVote = spavVote;
-    }
-
-    public Party getParty() {
-        return party;
     }
 
     public Integer getTable() {
@@ -43,5 +37,16 @@ public class Vote implements Serializable {
 
     public List<Party> getSpavVote() {
         return spavVote;
+    }
+
+    @Override
+    public String toString() {
+        return "Vote{" +
+                "province=" + province +
+                ", table=" + table +
+                ", fptpVote=" + fptpVote +
+                ", starVote=" + starVote +
+                ", spavVote=" + spavVote +
+                '}';
     }
 }
