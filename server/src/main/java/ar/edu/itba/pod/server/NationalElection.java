@@ -18,7 +18,20 @@ public class NationalElection {
         }
         return newBallots.size();
     }
+    
+    /**
+     * Runs the national elections to calculate results.
+     * @return The party winner of the elections
+     */
+    public Party getNationalElectionWinner() {
+        List<Party> scoringRoundWinners = this.scoringRound();
+        return this.automaticRunoff(scoringRoundWinners);
+    }
 
+    /**
+     * Once elections has been run, this method orders the results of the scoring round
+     * @return List of map entries of the scoring round results
+     */
     public List<Map.Entry<Party, Long>> getOrderedScoringRoundResults() {
         if (this.scoringRoundResults.isEmpty()) return Collections.emptyList();
 
@@ -34,7 +47,10 @@ public class NationalElection {
         orderedList.sort(scoringComparator);
         return orderedList;
     }
-
+    /**
+     * Once elections has been run, this method orders the results of the automatic runoff
+     * @return List of map entries of the runoff results
+     */
     public List<Map.Entry<Party, Double>> getOrderedAutomaticRunoffResults() {
         if (this.automaticRunoffResult.isEmpty()) return Collections.emptyList();
 
