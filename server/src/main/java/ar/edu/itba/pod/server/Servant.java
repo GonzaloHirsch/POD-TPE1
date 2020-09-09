@@ -13,7 +13,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Servant implements AuditService, ManagementService {
     private final Map<Party, Map<Integer, List<String>>> auditOfficers = new HashMap<>();
-    private final Map<Party, Map<Integer, PartyVoteHandler>> auditHandlers = new HashMap<>();
+    private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
     private ElectionState electionState = ElectionState.PENDING;
 
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
@@ -32,7 +32,9 @@ public class Servant implements AuditService, ManagementService {
 
                 // Saving the vote handler to notify when new votes on a table for a certain party happen
                 synchronized (auditHandlers) {
-                    auditHandlers.computeIfAbsent(party, p -> new HashMap<>()).put(table, handler);
+                    auditHandlers.computeIfAbsent(party, p -> new HashMap<>())
+                            .computeIfAbsent(table, t-> new ArrayList<>())
+                            .add(handler);
                 }
             } else {
                 throw new ElectionsInProgressException();
@@ -47,7 +49,9 @@ public class Servant implements AuditService, ManagementService {
 
         synchronized (auditHandlers) {
             if (auditHandlers.containsKey(party) && auditHandlers.get(party).containsKey(table)) {
-                auditHandlers.get(party).get(table).onPartyVote(vote);
+                for (PartyVoteHandler handler: auditHandlers.get(party).get(table)) {
+                    handler.onPartyVote(vote);
+                }
             }
         }
 
