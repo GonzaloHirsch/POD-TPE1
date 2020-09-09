@@ -2,16 +2,14 @@ package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import javafx.util.Pair;
 
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-public class Servant implements AuditService, ManagementService {
+public class Servant implements AuditService, ManagementService, QueryService {
     private final Map<Party, Map<Integer, List<String>>> auditOfficers = new HashMap<>();
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
     private ElectionState electionState = ElectionState.PENDING;
@@ -41,6 +39,7 @@ public class Servant implements AuditService, ManagementService {
             }
         }
     }
+
 
     @Override
     public void notifyPartyVote(Vote vote) throws RemoteException {
@@ -82,5 +81,39 @@ public class Servant implements AuditService, ManagementService {
         synchronized (this.STATE_LOCK){
             return this.electionState;
         }
+    }
+
+    @Override
+    public List<TreeSet<Pair>> getNationalResults() throws RemoteException {
+        synchronized (this.STATE_LOCK) {
+            if(electionState==ElectionState.OPEN){
+
+            }else if(electionState==ElectionState.CLOSED){
+
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<TreeSet<Pair>> getProvinceResults(Province province) throws RemoteException {
+        synchronized (this.STATE_LOCK) {
+            if(electionState==ElectionState.OPEN){
+
+            }else if(electionState==ElectionState.CLOSED){
+
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public List<TreeSet<Pair>> getTableResults(Integer tableID) throws RemoteException {
+        synchronized (this.STATE_LOCK) {
+            if(electionState == ElectionState.OPEN || electionState == ElectionState.CLOSED){
+
+            }
+        }
+        return null;
     }
 }
