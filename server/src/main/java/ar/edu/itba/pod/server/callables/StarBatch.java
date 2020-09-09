@@ -1,8 +1,8 @@
-package ar.edu.itba.pod.server.Callables;
+package ar.edu.itba.pod.server.callables;
 
 import ar.edu.itba.pod.Party;
 import ar.edu.itba.pod.Vote;
-import ar.edu.itba.pod.server.NationalElection;
+import ar.edu.itba.pod.server.models.NationalElection;
 
 import java.rmi.RemoteException;
 import java.util.ArrayList;

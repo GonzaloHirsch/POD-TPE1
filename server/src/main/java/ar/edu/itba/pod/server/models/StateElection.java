@@ -1,4 +1,4 @@
-package ar.edu.itba.pod.server;
+package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.Party;
 import ar.edu.itba.pod.Province;

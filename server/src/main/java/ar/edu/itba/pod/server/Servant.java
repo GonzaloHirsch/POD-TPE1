@@ -1,15 +1,18 @@
 package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.*;
+import ar.edu.itba.pod.exceptions.ElectionNotStartedException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 
 import java.rmi.RemoteException;
 import java.util.*;
 
-import ar.edu.itba.pod.server.Callables.FptpBatch;
-import ar.edu.itba.pod.server.Callables.SpavBatch;
-import ar.edu.itba.pod.server.Callables.StarBatch;
-import jdk.internal.util.xml.impl.Pair;
+import ar.edu.itba.pod.server.callables.FptpBatch;
+import ar.edu.itba.pod.server.callables.SpavBatch;
+import ar.edu.itba.pod.server.callables.StarBatch;
+import ar.edu.itba.pod.server.models.NationalElection;
+import ar.edu.itba.pod.server.models.StateElection;
+import ar.edu.itba.pod.server.models.Table;
 
 import java.util.concurrent.*;
 
@@ -103,7 +106,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     }
 
     @Override
-    public List<Map.Entry<Party,Long>> getNationalResults() throws RemoteException {
+    public List<Map.Entry<Party,Long>> getNationalResults() throws RemoteException, ElectionNotStartedException {
         synchronized (this.STATE_LOCK) {
             if(electionState==ElectionState.OPEN){
 
@@ -111,11 +114,11 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
             }
         }
-        return null;
+        throw new ElectionNotStartedException("");
     }
 
     @Override
-    public List<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException {
+    public List<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException, ElectionNotStartedException {
         synchronized (this.STATE_LOCK) {
             if(electionState==ElectionState.OPEN){
 
@@ -124,16 +127,16 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                 return nationalElection.getOrderedScoringRoundResults();
             }
         }
-        return null;
+        throw new ElectionNotStartedException("");
     }
 
     @Override
-    public List<Map.Entry<Party,Long>> getTableResults(Integer tableID) throws RemoteException {
+    public List<Map.Entry<Party,Long>> getTableResults(Integer tableID) throws RemoteException, ElectionNotStartedException {
         synchronized (this.STATE_LOCK) {
             if(electionState == ElectionState.OPEN || electionState == ElectionState.CLOSED){
 
             }
         }
-        return null;
+        throw new ElectionNotStartedException("");
     }
 }

@@ -1,7 +1,7 @@
-package ar.edu.itba.pod.server.Callables;
+package ar.edu.itba.pod.server.callables;
 
 import ar.edu.itba.pod.Vote;
-import ar.edu.itba.pod.server.Table;
+import ar.edu.itba.pod.server.models.Table;
 
 import java.rmi.RemoteException;
 import java.util.HashMap;

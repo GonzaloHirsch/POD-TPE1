@@ -1,4 +1,4 @@
-package ar.edu.itba.pod.server;
+package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.Party;
 
@@ -18,7 +18,7 @@ public class NationalElection {
         }
         return newBallots.size();
     }
-    
+
     /**
      * Runs the national elections to calculate results.
      * @return The party winner of the elections
