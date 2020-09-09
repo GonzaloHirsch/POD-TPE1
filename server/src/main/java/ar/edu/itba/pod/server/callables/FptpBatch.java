@@ -19,6 +19,7 @@ public class FptpBatch implements Callable<Integer> {
 
     @Override
     public Integer call() throws RemoteException {
+        // for every vote, we search for the table and emit the vote on that table
         votes.stream().forEach(v -> tables.get(v.getTable()).emitVote(v.getFptpVote()));
         return votes.size();
     }

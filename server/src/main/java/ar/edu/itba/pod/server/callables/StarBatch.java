@@ -22,8 +22,8 @@ public class StarBatch implements Callable<Integer> {
     @Override
     public Integer call() throws RemoteException {
         List<Map<Party, Long>> newBallots = new ArrayList<>();
-        votes.forEach(v -> newBallots.add(v.getStarVote()));
-        nationalElection.addSparBallots(newBallots);
-        return votes.size();
+        votes.stream().forEach(v -> newBallots.add(v.getStarVote()));
+        // votes are processed in national election
+        return nationalElection.addSparBallots(newBallots);
     }
 }

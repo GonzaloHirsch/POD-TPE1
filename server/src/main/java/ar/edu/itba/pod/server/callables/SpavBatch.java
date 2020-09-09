@@ -21,9 +21,10 @@ public class SpavBatch implements Callable<Integer> {
     @Override
     public Integer call() throws RemoteException {
         Map<Province, List<List<Party>>> newBallots = new HashMap<>();
+        // we arrange the batch of votes per province
         Arrays.stream(Province.values()).forEach(p -> newBallots.put(p, new ArrayList<>()));
-        votes.forEach(v -> newBallots.get(v.getProvince()).add(v.getSpavVote()));
-        stateElection.emitVotes(newBallots);
-        return votes.size();
+        votes.stream().forEach(v -> newBallots.get(v.getProvince()).add(v.getSpavVote()));
+        // votes per province are processed in state election
+        return stateElection.emitVotes(newBallots);
     }
 }
