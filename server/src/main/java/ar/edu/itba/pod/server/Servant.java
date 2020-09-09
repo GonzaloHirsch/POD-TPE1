@@ -15,7 +15,7 @@ import java.util.concurrent.*;
 
 public class Servant implements AuditService, ManagementService, VoteService, QueryService {
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
-    private HashMap<Integer, Table> tables = new HashMap<>();
+    private final HashMap<Integer, Table> tables = new HashMap<>();
     private StateElection stateElection = new StateElection();
     private NationalElection nationalElection = new NationalElection();
     private ElectionState electionState = ElectionState.PENDING;
@@ -25,7 +25,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
 
     @Override
-    public void registerAuditOfficer(String officer, Party party, Integer table, PartyVoteHandler handler) throws RemoteException {
+    public void registerAuditOfficer(Party party, int table, PartyVoteHandler handler) throws RemoteException {
         synchronized (this.STATE_LOCK) {
             // If election is still pending, it can be registered
             if (this.electionState == ElectionState.PENDING) {
@@ -103,7 +103,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     }
 
     @Override
-    public List<TreeSet<Pair>> getNationalResults() throws RemoteException {
+    public List<Map.Entry<Party,Long>> getNationalResults() throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState==ElectionState.OPEN){
 
@@ -115,19 +115,20 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     }
 
     @Override
-    public List<TreeSet<Pair>> getProvinceResults(Province province) throws RemoteException {
+    public List<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState==ElectionState.OPEN){
 
             }else if(electionState==ElectionState.CLOSED){
-
+                nationalElection.getNationalElectionWinner();
+                return nationalElection.getOrderedScoringRoundResults();
             }
         }
         return null;
     }
 
     @Override
-    public List<TreeSet<Pair>> getTableResults(Integer tableID) throws RemoteException {
+    public List<Map.Entry<Party,Long>> getTableResults(Integer tableID) throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState == ElectionState.OPEN || electionState == ElectionState.CLOSED){
 
