@@ -22,7 +22,7 @@ public class SpavBatch implements Callable<Integer> {
     public Integer call() throws RemoteException {
         Map<Province, List<List<Party>>> newBallots = new HashMap<>();
         Arrays.stream(Province.values()).forEach(p -> newBallots.put(p, new ArrayList<>()));
-        votes.stream().forEach(v -> newBallots.get(v.getProvince()).add(v.getSpavVote()));
+        votes.forEach(v -> newBallots.get(v.getProvince()).add(v.getSpavVote()));
         stateElection.emitVotes(newBallots);
         return votes.size();
     }
