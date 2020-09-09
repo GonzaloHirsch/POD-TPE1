@@ -1,31 +1,29 @@
 package ar.edu.itba.pod.client.arguments;
 
+import ar.edu.itba.pod.Party;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 
 import java.util.Optional;
 import java.util.Properties;
 
-public class QueryClientArguments {
-    private String serverAddress,provinceName,outPutPath;
-    private Integer tableID = null;
+public class AuditClientArguments {
+    private String serverAddress;
+    private int tableID;
+    private Party party;
 
-    private static final String STATE_KEY = "state";
-    private static final String ID_KEY = "id";
-    private static final String OUT_PATH = "outPath";
+    private static final String PARTY_KEY = "party";
+    private static final String TABLE_ID_KEY = "id";
     private static final String SERVER_ADDRESS_KEY = "serverAddress";
 
+    public Party getParty() {
+        return party;
+    }
 
     public String getServerAddress() {
         return serverAddress;
     }
-    public String getProvinceName() {
-        return provinceName;
-    }
-    public String getOutPutPath() {
-        return outPutPath;
-    }
 
-    public Integer getTableID() {
+    public int getTableID() {
         return tableID;
     }
 
@@ -36,22 +34,20 @@ public class QueryClientArguments {
     public void parseArguments() throws InvalidArgumentsException {
         Properties props = System.getProperties();
 
-        // Try to obtain the state parameter
-        if (props.containsKey(STATE_KEY)){
-            this.provinceName = props.getProperty(STATE_KEY);
-        }
-
-        // Try to obtain the id parameter
-        if (props.containsKey(ID_KEY)){
-            this.tableID = Integer.parseInt(props.getProperty(ID_KEY));
-        }
-
-        // Try to obtain the out path parameter
-        if (!props.containsKey(OUT_PATH)){
+        // Try to obtain the party parameter
+        if (!props.containsKey(PARTY_KEY)){
             this.printHelp();
-            throw new InvalidArgumentsException("Invalid argument for outPath");
+            throw new InvalidArgumentsException("Invalid argument for party");
         } else {
-            this.outPutPath = props.getProperty(OUT_PATH);
+            this.party = Party.fromValue(props.getProperty(PARTY_KEY));
+        }
+
+        // Try to obtain the table id parameter
+        if (!props.containsKey(TABLE_ID_KEY)){
+            this.printHelp();
+            throw new InvalidArgumentsException("Invalid argument for table id");
+        } else {
+            this.tableID = Integer.parseInt(props.getProperty(TABLE_ID_KEY));
         }
 
         // Try to obtain the server address
@@ -68,12 +64,10 @@ public class QueryClientArguments {
      */
     private void printHelp(){
         System.out.println("This program should be run as follows:\n"+
-                "$>./run-query -DserverAddress=xx.xx.xx.xx:yyyy [ -Dstate=stateName |\n" +
-                "-Did=pollingPlaceNumber ] -DoutPath=fileName\n"+
+                "$>./run-audit -DserverAddress=xx.xx.xx.xx:yyyy -Did=pollingPlaceNumber -Dparty=partyName\n"+
                 "Where: \n"+
                 " - DserverAddress is xx.xx.xx.xx:yyyy with xx.xx.xx.xx is the server address and yyyy the port of the server\n"+
-                " - Dstate is the name of the province\n"+
-                " - Did is the voting table id\n"+
-                " - DoutPath is the path where the results file will be stored\n");
+                " - Did is the id of the polling station the audit officer will be registered to\n" +
+                " - Dparty is the party which the audit officer belongs to");
     }
 }

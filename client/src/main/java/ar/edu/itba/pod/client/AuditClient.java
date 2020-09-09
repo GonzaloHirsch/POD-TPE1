@@ -1,6 +1,8 @@
 package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.*;
+import ar.edu.itba.pod.client.arguments.AuditClientArguments;
+import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,31 +16,37 @@ public class AuditClient {
     private static final Logger LOG = LoggerFactory.getLogger(AuditClient.class);
 
     public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException, InterruptedException {
+        AuditClientArguments clientArguments = new AuditClientArguments();
+
+        // Parsing the arguments
+        try {
+            clientArguments.parseArguments();
+        } catch (InvalidArgumentsException e) {
+            System.out.println(e.getMessage());
+        }
+
         LOG.info("AuditClient has started...");
-        final AuditService service = (AuditService) Naming.lookup("//127.0.0.1:1099/auditService");
+
+        final AuditService service = (AuditService) Naming.lookup("//" + clientArguments.getServerAddress() + "/auditService");
 
         PartyVoteHandler handler = new PartyVoteHandlerImpl();
 
         UnicastRemoteObject.exportObject(handler, 0);
 
-        String officer = "Madre Teresa";
-        Party party = Party.BUFFALO;
-        Integer table = 1004;
-
-        registerAuditOfficerThread(service, officer, party, table, handler);
+        registerAuditOfficerThread(service,  clientArguments.getParty(), clientArguments.getTableID(), handler);
 
     }
 
-    private static void registerAuditOfficerThread(AuditService service, String officer, Party party, Integer table, PartyVoteHandler handler){
+    private static void registerAuditOfficerThread(AuditService service, Party party, int table, PartyVoteHandler handler){
         Runnable r = () -> {
             try {
-                service.registerAuditOfficer(officer, party, table, handler);
+                service.registerAuditOfficer(party, table, handler);
             } catch (RemoteException e) {
                 LOG.error("Error registering the audit officer");
             } catch (ElectionsInProgressException e) {
                 LOG.error("Elections in progress. Can no longer register audit officers");
             }
-            System.out.format("Fiscal of %s registered on polling place %s\n", party.toString(), table);
+            System.out.format("Audit officer of %s registered on polling place %s\n", party.toString(), table);
         };
         Thread t = new Thread(r);
         t.start();
