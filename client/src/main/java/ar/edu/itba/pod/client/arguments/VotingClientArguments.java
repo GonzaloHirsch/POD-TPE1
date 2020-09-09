@@ -48,7 +48,7 @@ public class VotingClientArguments {
      * Method to print the help for the vote client
      */
     private void printHelp() {
-        System.out.println("This program should be run like:\n" +
+        System.out.println("This program should be run as follows:\n" +
                 "$>./run-vote -DserverAddress=xx.xx.xx.xx:yyyy -DvotesPath=filename\n" +
                 "Where: \n" +
                 " - DserverAddress is xx.xx.xx.xx:yyyy with xx.xx.xx.xx is the server address and yyyy the port of the server\n" +
