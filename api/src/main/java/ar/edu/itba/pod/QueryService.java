@@ -1,6 +1,7 @@
 package ar.edu.itba.pod;
 
-import javafx.util.Pair;
+
+import jdk.internal.util.xml.impl.Pair;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

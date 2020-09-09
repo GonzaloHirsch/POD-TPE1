@@ -2,17 +2,25 @@ package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
-import javafx.util.Pair;
 
 import java.rmi.RemoteException;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
 
-public class Servant implements AuditService, ManagementService, QueryService {
-    private final Map<Party, Map<Integer, List<String>>> auditOfficers = new HashMap<>();
+import ar.edu.itba.pod.server.Callables.FptpBatch;
+import ar.edu.itba.pod.server.Callables.SpavBatch;
+import ar.edu.itba.pod.server.Callables.StarBatch;
+import jdk.internal.util.xml.impl.Pair;
+
+import java.util.concurrent.*;
+
+public class Servant implements AuditService, ManagementService, VoteService, QueryService {
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
+    private HashMap<Integer, Table> tables = new HashMap<>();
+    private StateElection stateElection = new StateElection();
+    private NationalElection nationalElection = new NationalElection();
     private ElectionState electionState = ElectionState.PENDING;
+
+    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
 
@@ -21,13 +29,10 @@ public class Servant implements AuditService, ManagementService, QueryService {
         synchronized (this.STATE_LOCK) {
             // If election is still pending, it can be registered
             if (this.electionState == ElectionState.PENDING) {
-                // Registering the audit officer
-                synchronized (auditOfficers) {
-                    auditOfficers.computeIfAbsent(party, p -> new HashMap<>())
-                            .computeIfAbsent(table, t -> new ArrayList<>())
-                            .add(officer);
+                // Creates the table if it does not exist yet
+                synchronized (tables) {
+                    tables.computeIfAbsent(table, t -> new Table(table));
                 }
-
                 // Saving the vote handler to notify when new votes on a table for a certain party happen
                 synchronized (auditHandlers) {
                     auditHandlers.computeIfAbsent(party, p -> new HashMap<>())
@@ -40,9 +45,7 @@ public class Servant implements AuditService, ManagementService, QueryService {
         }
     }
 
-
-    @Override
-    public void notifyPartyVote(Vote vote) throws RemoteException {
+    private void notifyPartyVote(Vote vote) throws RemoteException {
         Party party = vote.getFptpVote();
         Integer table = vote.getTable();
 
@@ -53,7 +56,6 @@ public class Servant implements AuditService, ManagementService, QueryService {
                 }
             }
         }
-
     }
 
     @Override
@@ -81,6 +83,23 @@ public class Servant implements AuditService, ManagementService, QueryService {
         synchronized (this.STATE_LOCK){
             return this.electionState;
         }
+    }
+    
+    public int emitVotes(List<Vote> votes) throws RemoteException, ExecutionException, InterruptedException {
+        // independently, we process votes on three dimensions needed
+        Future<Integer> fptpResult = executor.submit(new FptpBatch(votes, tables));
+        Future<Integer> starResult = executor.submit(new StarBatch(votes, nationalElection));
+        Future<Integer> spavResult = executor.submit(new SpavBatch(votes, stateElection));
+
+        fptpResult.get();
+        // once all fptp results have been processed we can safely notify audit officers at their table
+        executor.submit(() -> {for(Vote v: votes) notifyPartyVote(v); return "Finished";});
+
+        spavResult.get();
+        starResult.get();
+
+        // finished processing all dimensions
+        return votes.size();
     }
 
     @Override
