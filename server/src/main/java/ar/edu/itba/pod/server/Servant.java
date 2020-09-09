@@ -103,7 +103,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     }
 
     @Override
-    public List<TreeSet<Pair>> getNationalResults() throws RemoteException {
+    public List<Map.Entry<Party,Long>> getNationalResults() throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState==ElectionState.OPEN){
 
@@ -115,19 +115,20 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     }
 
     @Override
-    public List<TreeSet<Pair>> getProvinceResults(Province province) throws RemoteException {
+    public List<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState==ElectionState.OPEN){
 
             }else if(electionState==ElectionState.CLOSED){
-
+                nationalElection.getNationalElectionWinner();
+                return nationalElection.getOrderedScoringRoundResults();
             }
         }
         return null;
     }
 
     @Override
-    public List<TreeSet<Pair>> getTableResults(Integer tableID) throws RemoteException {
+    public List<Map.Entry<Party,Long>> getTableResults(Integer tableID) throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState == ElectionState.OPEN || electionState == ElectionState.CLOSED){
 
