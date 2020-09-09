@@ -7,7 +7,7 @@ import java.util.Properties;
 
 public class QueryClientArguments {
     private String serverAddress,provinceName,outPutPath;
-    private int tableID;
+    private Integer tableID = null;
 
     private static final String STATE_KEY = "state";
     private static final String ID_KEY = "id";
@@ -24,7 +24,7 @@ public class QueryClientArguments {
     public String getOutPutPath() {
         return outPutPath;
     }
-    public int getTableID() {
+    public Integer getTableID() {
         return tableID;
     }
 
