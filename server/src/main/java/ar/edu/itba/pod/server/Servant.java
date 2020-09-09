@@ -2,6 +2,7 @@ package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import com.sun.xml.internal.ws.wsdl.writer.document.Part;
 import javafx.util.Pair;
 
 import java.rmi.RemoteException;
@@ -15,6 +16,7 @@ public class Servant implements AuditService, ManagementService, QueryService {
     private ElectionState electionState = ElectionState.PENDING;
 
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
+    private NationalElection nationalElection = new NationalElection();
 
     @Override
     public void registerAuditOfficer(String officer, Party party, Integer table, PartyVoteHandler handler) throws RemoteException {
@@ -84,7 +86,7 @@ public class Servant implements AuditService, ManagementService, QueryService {
     }
 
     @Override
-    public List<TreeSet<Pair>> getNationalResults() throws RemoteException {
+    public List<Map.Entry<Party,Long>> getNationalResults() throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState==ElectionState.OPEN){
 
@@ -96,19 +98,20 @@ public class Servant implements AuditService, ManagementService, QueryService {
     }
 
     @Override
-    public List<TreeSet<Pair>> getProvinceResults(Province province) throws RemoteException {
+    public List<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState==ElectionState.OPEN){
 
             }else if(electionState==ElectionState.CLOSED){
-
+                nationalElection.getNationalElectionWinner();
+                return nationalElection.getOrderedScoringRoundResults();
             }
         }
         return null;
     }
 
     @Override
-    public List<TreeSet<Pair>> getTableResults(Integer tableID) throws RemoteException {
+    public List<Map.Entry<Party,Long>> getTableResults(Integer tableID) throws RemoteException {
         synchronized (this.STATE_LOCK) {
             if(electionState == ElectionState.OPEN || electionState == ElectionState.CLOSED){
 
