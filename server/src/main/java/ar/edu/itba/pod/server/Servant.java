@@ -17,25 +17,26 @@ public class Servant implements AuditService, ManagementService {
     private ElectionState electionState = ElectionState.PENDING;
 
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
-
-
+    
     @Override
     public void registerAuditOfficer(String officer, Party party, Integer table, PartyVoteHandler handler) throws RemoteException {
-        // TODO -> use administrationService to check if elections have begun
-        if (true) {
-            // Registering the audit officer
-            synchronized (auditOfficers) {
-                auditOfficers.computeIfAbsent(party, p -> new HashMap<>())
-                        .computeIfAbsent(table, t -> new ArrayList<>())
-                        .add(officer);
-            }
+        synchronized (this.STATE_LOCK) {
+            // If election is still pending, it can be registered
+            if (this.electionState == ElectionState.PENDING) {
+                // Registering the audit officer
+                synchronized (auditOfficers) {
+                    auditOfficers.computeIfAbsent(party, p -> new HashMap<>())
+                            .computeIfAbsent(table, t -> new ArrayList<>())
+                            .add(officer);
+                }
 
-            // Saving the vote handler to notify when new votes on a table for a certain party happen
-            synchronized (auditHandlers) {
-                auditHandlers.computeIfAbsent(party, p -> new HashMap<>()).put(table, handler);
+                // Saving the vote handler to notify when new votes on a table for a certain party happen
+                synchronized (auditHandlers) {
+                    auditHandlers.computeIfAbsent(party, p -> new HashMap<>()).put(table, handler);
+                }
+            } else {
+                throw new ElectionsInProgressException();
             }
-        } else {
-            throw new ElectionsInProgressException();
         }
     }
 
