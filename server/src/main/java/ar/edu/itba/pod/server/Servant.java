@@ -17,7 +17,7 @@ public class Servant implements AuditService, ManagementService {
     private ElectionState electionState = ElectionState.PENDING;
 
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
-    
+
     @Override
     public void registerAuditOfficer(String officer, Party party, Integer table, PartyVoteHandler handler) throws RemoteException {
         synchronized (this.STATE_LOCK) {
@@ -44,7 +44,7 @@ public class Servant implements AuditService, ManagementService {
 
     @Override
     public void notifyPartyVote(Vote vote) throws RemoteException {
-        Party party = vote.getParty();
+        Party party = vote.getFptpVote();
         Integer table = vote.getTable();
 
         synchronized (auditHandlers) {

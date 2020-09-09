@@ -9,5 +9,5 @@
   <groupId>ar.edu.itba.pod</groupId>
   <artifactId>POD-TPE1-api</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>POD-TPE1-api</name>
+  <name>tpe1-g2-api</name>
 </project>

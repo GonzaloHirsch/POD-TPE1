@@ -9,7 +9,7 @@
   <groupId>ar.edu.itba.pod</groupId>
   <artifactId>POD-TPE1-client</artifactId>
   <version>1.0-SNAPSHOT</version>
-  <name>POD-TPE1-client</name>
+  <name>tpe1-g2-client</name>
   <dependencies>
     <dependency>
       <groupId>ar.edu.itba.pod</groupId>

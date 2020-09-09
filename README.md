@@ -1,5 +1,12 @@
 # POD-TPE1
 
+## Command Examples
+### Vote Client
+To run this, a _vote.csv_ file is used from the _/examples_ directory:
+```
+./run-vote.sh -DserverAddress=xx.xx.xx.xx:yyyy -DvotesPath=../../../examples/votes.csv
+```
+
 ## Fast Running Commands
 
 From terminal A run:
