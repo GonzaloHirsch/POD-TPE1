@@ -21,7 +21,7 @@ public class NationalElectionsResultsTest {
 
     @Test
     public void testEmitVotes() {
-        nationalElection.addSparBallots(this.ballots);
+        this.ballots.forEach(v -> nationalElection.emitVote(v));
 
         assertEquals(Party.JACKALOPE, nationalElection.getNationalElectionWinner());
         System.out.println(nationalElection.getOrderedScoringRoundResults());

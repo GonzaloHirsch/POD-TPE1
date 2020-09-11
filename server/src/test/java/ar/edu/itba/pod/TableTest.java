@@ -4,12 +4,10 @@ import ar.edu.itba.pod.server.models.Table;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
-import java.util.concurrent.atomic.AtomicLong;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class TableTest {
 
