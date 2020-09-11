@@ -32,8 +32,8 @@ public class NationalElection {
      * Once elections has been run, this method orders the results of the scoring round
      * @return List of map entries of the scoring round results
      */
-    public List<Map.Entry<Party, Long>> getOrderedScoringRoundResults() {
-        if (this.scoringRoundResults.isEmpty()) return Collections.emptyList();
+    public TreeSet<Map.Entry<Party, Long>> getOrderedScoringRoundResults() {
+        if (this.scoringRoundResults.isEmpty()) return new TreeSet<>();
 
         Comparator<Map.Entry<Party, Long>> scoringComparator = (e1, e2) -> {
             int keyComparison = e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
@@ -43,16 +43,16 @@ public class NationalElection {
             return keyComparison;
         };
 
-        List<Map.Entry<Party, Long>> orderedList = new ArrayList<>(this.scoringRoundResults.entrySet());
-        orderedList.sort(scoringComparator);
-        return orderedList;
+        TreeSet<Map.Entry<Party, Long>> orderedSet = new TreeSet<>(scoringComparator);
+        orderedSet.addAll(this.scoringRoundResults.entrySet());
+        return orderedSet;
     }
     /**
      * Once elections has been run, this method orders the results of the automatic runoff
      * @return List of map entries of the runoff results
      */
-    public List<Map.Entry<Party, Double>> getOrderedAutomaticRunoffResults() {
-        if (this.automaticRunoffResult.isEmpty()) return Collections.emptyList();
+    public TreeSet<Map.Entry<Party, Double>> getOrderedAutomaticRunoffResults() {
+        if (this.automaticRunoffResult.isEmpty()) return new TreeSet<>();
 
         Comparator<Map.Entry<Party, Double>> runoffComparator = (e1, e2) -> {
             int keyComparison = e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
@@ -62,9 +62,9 @@ public class NationalElection {
             return keyComparison;
         };
 
-        List<Map.Entry<Party, Double>> orderedList = new ArrayList<>(this.automaticRunoffResult.entrySet());
-        orderedList.sort(runoffComparator);
-        return orderedList;
+        TreeSet<Map.Entry<Party, Double>> orderedSet = new TreeSet<>(runoffComparator);
+        orderedSet.addAll(this.automaticRunoffResult.entrySet());
+        return orderedSet;
     }
 
     /**

@@ -6,6 +6,7 @@ import org.junit.Test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.junit.Assert.*;
@@ -40,7 +41,7 @@ public class TableTest {
         table.emitVote(Party.TIGER);
         table.emitVote(Party.TURTLE);
 
-        List<Map.Entry<Party, Double>> results =table.getResultsFromTable();
+        TreeSet<Map.Entry<Party, Double>> results =table.getResultsFromTable();
         results.forEach(e->{
             System.out.println("PARTY " + e.getKey() + " - Voting: " + e.getValue());
         });

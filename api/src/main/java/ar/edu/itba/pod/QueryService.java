@@ -7,10 +7,10 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.TreeSet;
 
 public interface QueryService extends Remote {
-    List<Map.Entry<Party,Long>> getNationalResults() throws RemoteException, ElectionNotStartedException;
-    List<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException, ElectionNotStartedException;
-    List<Map.Entry<Party, Double>> getTableResults(Integer tableID) throws RemoteException, ElectionNotStartedException;
+    TreeSet<Map.Entry<Party,Long>> getNationalResults() throws RemoteException, ElectionNotStartedException;
+    TreeSet<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException, ElectionNotStartedException;
+    TreeSet<Map.Entry<Party, Double>> getTableResults(Integer tableID) throws RemoteException, ElectionNotStartedException;
 }

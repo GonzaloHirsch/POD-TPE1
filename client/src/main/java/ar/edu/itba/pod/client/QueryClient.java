@@ -16,7 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.TreeSet;
 
 public class QueryClient {
     private static final Logger LOG = LoggerFactory.getLogger(QueryClient.class);
@@ -39,19 +39,19 @@ public class QueryClient {
 
         if(clientArguments.getProvinceName().equals("") && clientArguments.getTableID() == null){
             try {
-                List<Map.Entry<Party, Long>> nationalResults = service.getNationalResults();
+                TreeSet<Map.Entry<Party, Long>> nationalResults = service.getNationalResults();
             } catch (ElectionNotStartedException e) {
                 e.printStackTrace();
             }
         }else if(clientArguments.getTableID() != null){
             try {
-                List<Map.Entry<Party, Double>> tableResults = service.getTableResults(clientArguments.getTableID());
+                TreeSet<Map.Entry<Party, Double>> tableResults = service.getTableResults(clientArguments.getTableID());
             } catch (ElectionNotStartedException e) {
                 e.printStackTrace();
             }
         }else{
             try {
-                List<Map.Entry<Party, Long>> stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
+                TreeSet<Map.Entry<Party, Long>> stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
             } catch (ElectionNotStartedException e) {
                 e.printStackTrace();
             }
