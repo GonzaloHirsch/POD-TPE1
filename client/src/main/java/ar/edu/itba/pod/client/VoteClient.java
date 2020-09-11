@@ -1,9 +1,6 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.ManagementService;
-import ar.edu.itba.pod.Party;
-import ar.edu.itba.pod.Province;
-import ar.edu.itba.pod.Vote;
+import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.client.arguments.VotingClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import org.slf4j.Logger;
@@ -20,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 public class VoteClient {
     private static final Logger LOG = LoggerFactory.getLogger(VoteClient.class);
@@ -31,29 +29,47 @@ public class VoteClient {
     private static final int STAR_VOTE_PARTY = 0;
     private static final int STAR_VOTE_VALUE = 1;
 
-    public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException, InterruptedException {
-        VotingClientArguments clientArguments = new VotingClientArguments();
-
-        // Parsing the arguments
+    public static void main(final String[] args){
         try {
-            clientArguments.parseArguments();
-        } catch (InvalidArgumentsException e) {
-            System.out.println(e.getMessage());
-        }
+            VotingClientArguments clientArguments = new VotingClientArguments();
 
-        // Getting the reference to the service
-        //final ManagementService service = (ManagementService) Naming.lookup("//" + clientArguments.getServerAddress() + "/managementService");
+            // Parsing the arguments
+            try {
+                clientArguments.parseArguments();
+            } catch (InvalidArgumentsException e) {
+                System.out.println(e.getMessage());
+            }
 
-        // Parsing the file
-        try {
-            List<Vote> votes = parseInputFile(clientArguments.getVotesPath());
+            // Getting the reference to the service
+            final VoteService service = (VoteService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + VoteService.class.getName());
 
-            LOG.info("THE VOTES ARE {}", votes);
-        } catch (IOException e) {
-            System.out.println("Invalid file given");
+            // Parsing the file
+            try {
+                List<Vote> votes = parseInputFile(clientArguments.getVotesPath());
+                service.emitVotes(votes);
+                LOG.info("THE VOTES ARE {}", votes);
+            } catch (IOException e) {
+                System.out.println("ERROR: Invalid file given");
+            } catch (ExecutionException e) {
+                System.out.println("ERROR: Error processing the votes");
+            }
+        } catch (RemoteException re){
+            System.out.println("ERROR: Exception in the remote server");
+        } catch (NotBoundException nbe){
+            System.out.println("ERROR: Service not bound");
+        } catch (MalformedURLException me){
+            System.out.println("ERROR: Malformed URL");
+        } catch (InterruptedException ie){
+            System.out.println("ERROR: Connection interrupted");
         }
     }
 
+    /**
+     * Parses the given file and generates the votes
+     * @param path Path to the file
+     * @return List with all the votes
+     * @throws IOException if the file path is not valid
+     */
     private static List<Vote> parseInputFile(String path) throws IOException {
         // Reading all the file lines
         List<String> lines = Files.readAllLines(new File(path).toPath());

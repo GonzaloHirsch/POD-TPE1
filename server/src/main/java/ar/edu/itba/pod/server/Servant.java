@@ -28,6 +28,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //                                      AUDIT METHODS
+    //////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public void registerAuditOfficer(Party party, int table, PartyVoteHandler handler) throws RemoteException {
         synchronized (this.STATE_LOCK) {
@@ -62,6 +66,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
     }
 
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //                                  MANAGEMENT METHODS
+    //////////////////////////////////////////////////////////////////////////////////////////
+
     @Override
     public void openElection() throws RemoteException, InvalidElectionStateException {
         synchronized (this.STATE_LOCK){
@@ -88,6 +96,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             return this.electionState;
         }
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //                                      VOTE METHODS
+    //////////////////////////////////////////////////////////////////////////////////////////
     
     public int emitVotes(List<Vote> votes) throws RemoteException, ExecutionException, InterruptedException {
         // independently, we process votes on three dimensions needed
@@ -105,6 +117,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         // finished processing all dimensions
         return votes.size();
     }
+
+    //////////////////////////////////////////////////////////////////////////////////////////
+    //                                      QUERY METHODS
+    //////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
     public List<Map.Entry<Party,Long>> getNationalResults() throws RemoteException, ElectionNotStartedException {

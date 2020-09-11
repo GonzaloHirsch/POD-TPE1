@@ -1,11 +1,9 @@
 package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.Party;
-import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.Collectors;
 
 public class Table {
     private final Integer ID;

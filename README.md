@@ -7,6 +7,22 @@ To run this, a _vote.csv_ file is used from the _/examples_ directory:
 ./run-vote.sh -DserverAddress=xx.xx.xx.xx:yyyy -DvotesPath=../../../examples/votes.csv
 ```
 
+### Management Client
+To OPEN the elections, run:
+```
+./run-management -DserverAddress=127.0.0.1:1099 -Daction=open
+```
+
+To CLOSE the elections, run:
+```
+./run-management -DserverAddress=127.0.0.1:1099 -Daction=close
+```
+
+To check STATUS of the elections, run:
+```
+./run-management -DserverAddress=127.0.0.1:1099 -Daction=state
+```
+
 ## Fast Running Commands
 
 From terminal A run:

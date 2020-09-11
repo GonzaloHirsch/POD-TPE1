@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Vote implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final Province province;
     private final Integer table; // FIXME puede ser int -> como prefieran
     private final Party fptpVote;

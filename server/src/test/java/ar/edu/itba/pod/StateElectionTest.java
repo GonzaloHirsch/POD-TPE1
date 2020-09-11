@@ -4,10 +4,7 @@ import ar.edu.itba.pod.server.models.StateElection;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
@@ -28,10 +25,8 @@ public class StateElectionTest {
 
     @Test
     public void testEmitVotes() {
-        List<Party> starVote1 = new ArrayList<>();
         List<Party> starVote2 = new ArrayList<>();
-
-        for(Party p : Party.values()) starVote1.add(p);
+        List<Party> starVote1 = new ArrayList<>(Arrays.asList(Party.values()));
         starVote2.add(Party.TURTLE);
         starVote2.add(Party.BUFFALO);
 
