@@ -1,9 +1,11 @@
 package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.Party;
+import sun.java2d.pipe.SpanShapeRenderer;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
 
 public class Table {
     private final Integer ID;
@@ -28,4 +30,24 @@ public class Table {
     public long getVotes(Party party) {
         return votes.get(party).longValue();
     }
+
+    public List<Map.Entry<Party,Double>> getResultsFromTable(){
+        if(votes.size() == 0) return null;
+
+
+        List<Map.Entry<Party,Double>> entries = new ArrayList<>();
+        votes.forEach((a,b) -> entries.add(new AbstractMap.SimpleEntry<>(a, ((Long)b.get()).doubleValue())));
+        entries.sort((o1, o2) -> o2.getValue().compareTo(o1.getValue()));
+        
+        long totalVotes = 0;
+        for(Map.Entry<Party,Double> entry : entries){
+            totalVotes += entry.getValue();
+        }
+
+        final long finalTotalVotes = totalVotes;
+        entries.forEach((e) -> e.setValue(e.getValue()/finalTotalVotes));
+
+        return entries;
+    }
+
 }

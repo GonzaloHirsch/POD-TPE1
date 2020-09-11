@@ -15,6 +15,7 @@ import ar.edu.itba.pod.server.models.StateElection;
 import ar.edu.itba.pod.server.models.Table;
 
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Servant implements AuditService, ManagementService, VoteService, QueryService {
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
@@ -111,7 +112,8 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             if(electionState==ElectionState.OPEN){
 
             }else if(electionState==ElectionState.CLOSED){
-
+                nationalElection.getNationalElectionWinner();
+                return nationalElection.getOrderedScoringRoundResults();
             }
         }
         throw new ElectionNotStartedException("");
@@ -123,18 +125,17 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             if(electionState==ElectionState.OPEN){
 
             }else if(electionState==ElectionState.CLOSED){
-                nationalElection.getNationalElectionWinner();
-                return nationalElection.getOrderedScoringRoundResults();
+
             }
         }
         throw new ElectionNotStartedException("");
     }
 
     @Override
-    public List<Map.Entry<Party,Long>> getTableResults(Integer tableID) throws RemoteException, ElectionNotStartedException {
+    public List<Map.Entry<Party, Double>> getTableResults(Integer tableID) throws RemoteException, ElectionNotStartedException {
         synchronized (this.STATE_LOCK) {
             if(electionState == ElectionState.OPEN || electionState == ElectionState.CLOSED){
-
+                return tables.get(tableID).getResultsFromTable();
             }
         }
         throw new ElectionNotStartedException("");

@@ -16,6 +16,7 @@ import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class QueryClient {
     private static final Logger LOG = LoggerFactory.getLogger(QueryClient.class);
@@ -44,7 +45,7 @@ public class QueryClient {
             }
         }else if(clientArguments.getTableID() != null){
             try {
-                List<Map.Entry<Party, Long>> tableResults = service.getTableResults(clientArguments.getTableID());
+                List<Map.Entry<Party, Double>> tableResults = service.getTableResults(clientArguments.getTableID());
             } catch (ElectionNotStartedException e) {
                 e.printStackTrace();
             }
