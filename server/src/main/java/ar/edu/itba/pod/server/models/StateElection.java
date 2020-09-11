@@ -6,22 +6,26 @@ import ar.edu.itba.pod.Province;
 import java.util.*;
 
 public class StateElection {
-
-    // we have a list of all spav tickets, per province
-    private Map<Province, List<List<Party>>> ballots = new HashMap<>();
+    /**
+     * Each province holds a list of the list of candidate parties
+     */
+    private final Map<Province, List<List<Party>>> ballots = new HashMap<>();
     private Map<Integer, Map<Party, Double>> results;
 
     public StateElection() {
+        // Initialize the map with the values for the provinces
         Arrays.stream(Province.values()).forEach(p -> ballots.put(p, new ArrayList<>()));
     }
 
     /**
-     * Given a batch of SPAV votes, stores these on approvals
-     * @return quantity of processed votes
+     * Given a SPAV vote in the format of List of parties, and the corresponding province, store the vote
+     * @param province Province for the vote
+     * @param vote List of chosen candidate parties
      */
-    public int emitVotes(Map<Province, List<List<Party>>> spavVotes) {
-        spavVotes.keySet().forEach(p -> ballots.get(p).addAll(spavVotes.get(p)));
-        return spavVotes.size();
+    public void emitVote(Province province, List<Party> vote) {
+        synchronized (this.ballots) {
+            this.ballots.get(province).add(vote);
+        }
     }
 
     public List<List<Party>> getBallotsPerProvince(Province province) {

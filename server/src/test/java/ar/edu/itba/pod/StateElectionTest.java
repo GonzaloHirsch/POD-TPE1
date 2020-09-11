@@ -25,21 +25,14 @@ public class StateElectionTest {
 
     @Test
     public void testEmitVotes() {
-        List<Party> starVote2 = new ArrayList<>();
-        List<Party> starVote1 = new ArrayList<>(Arrays.asList(Party.values()));
-        starVote2.add(Party.TURTLE);
-        starVote2.add(Party.BUFFALO);
+        List<Party> spavVote2 = new ArrayList<>();
+        List<Party> spavVote1 = new ArrayList<>(Arrays.asList(Party.values()));
+        spavVote2.add(Party.TURTLE);
+        spavVote2.add(Party.BUFFALO);
 
-        List<List<Party>> jungleBallots = new ArrayList<>();
-        jungleBallots.add(starVote1);
-        List<List<Party>> savannahBallots = new ArrayList<>();
-        savannahBallots.add(starVote2);
+        stateElection.emitVote(Province.JUNGLE, spavVote1);
 
-        Map<Province, List<List<Party>>> stateBallots = new HashMap<>();
-        stateBallots.put(Province.JUNGLE, jungleBallots);
-        stateBallots.put(Province.SAVANNAH, savannahBallots);
-
-        stateElection.emitVotes(stateBallots);
+        stateElection.emitVote(Province.SAVANNAH, spavVote2);
 
         assertEquals(0, stateElection.getBallotsPerProvince(Province.TUNDRA).size());
         assertEquals(1, stateElection.getBallotsPerProvince(Province.SAVANNAH).size());

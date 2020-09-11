@@ -26,10 +26,10 @@ public class Server {
 
         // Binding the services to the interface names
         final Registry registry = LocateRegistry.getRegistry();
-        registry.bind(VoteService.class.getName(), remote);
-        registry.bind(ManagementService.class.getName(), remote);
-        registry.bind(QueryService.class.getName(), remote);
-        registry.bind(AuditService.class.getName(), remote);
+        registry.rebind(VoteService.class.getName(), remote);
+        registry.rebind(ManagementService.class.getName(), remote);
+        registry.rebind(QueryService.class.getName(), remote);
+        registry.rebind(AuditService.class.getName(), remote);
         LOG.info("Service bound");
     }
 }

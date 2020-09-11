@@ -3,6 +3,7 @@ package ar.edu.itba.pod.client;
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.client.arguments.VotingClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,9 +19,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class VoteClient {
     private static final Logger LOG = LoggerFactory.getLogger(VoteClient.class);
+
+    // Executor service for all threads
+    private static final ExecutorService executor = Executors.newCachedThreadPool();
 
     private static final int TABLE_ID = 0;
     private static final int PROVINCE = 1;
@@ -43,15 +49,16 @@ public class VoteClient {
             // Getting the reference to the service
             final VoteService service = (VoteService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + VoteService.class.getName());
 
-            // Parsing the file
             try {
+                // Parsing the file
                 List<Vote> votes = parseInputFile(clientArguments.getVotesPath());
-                service.emitVotes(votes);
-                LOG.info("THE VOTES ARE {}", votes);
+
+                // Emitting votes
+                emitAllVotes(service, votes);
+
+                System.out.println(String.format("{} votes registered", votes.size()));
             } catch (IOException e) {
                 System.out.println("ERROR: Invalid file given");
-            } catch (ExecutionException e) {
-                System.out.println("ERROR: Error processing the votes");
             }
         } catch (RemoteException re){
             System.out.println("ERROR: Exception in the remote server");
@@ -59,9 +66,37 @@ public class VoteClient {
             System.out.println("ERROR: Service not bound");
         } catch (MalformedURLException me){
             System.out.println("ERROR: Malformed URL");
-        } catch (InterruptedException ie){
-            System.out.println("ERROR: Connection interrupted");
         }
+    }
+
+    /**
+     * Emits all the given votes to the service
+     * @param service Service to be used to emit the votes
+     * @param votes List of parsed votes
+     */
+    private static void emitAllVotes(VoteService service, List<Vote> votes){
+        // Emit all votes, use a parallel stream
+        // TODO: CHECK PERFORMANCE
+        votes.stream().parallel().forEach(v -> emitVote(service, v));
+    }
+
+    /**
+     * Emit a single vote using a runnable to a executor service
+     * @param service Service to be used to emit the votes
+     * @param vote Vote to be emitted
+     */
+    private static void emitVote(VoteService service, Vote vote){
+        // Creating the runnable task
+        Runnable r = () -> {
+            try {
+                service.emitVote(vote);
+            } catch (RemoteException | ExecutionException | InterruptedException | InvalidElectionStateException e) {
+                System.out.println("ERROR: Server error processing vote");
+            }
+        };
+
+        // Submitting the task
+        executor.submit(r);
     }
 
     /**

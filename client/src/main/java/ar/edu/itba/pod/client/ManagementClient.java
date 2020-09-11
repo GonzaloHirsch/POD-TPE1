@@ -28,7 +28,7 @@ public class ManagementClient {
             }
 
             // Getting the reference to the service
-            final ManagementService service = (ManagementService) Naming.lookup("//" + clientArguments.getServerAddress() + "/managementService");
+            final ManagementService service = (ManagementService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + ManagementService.class.getName());
 
             // Performing actions depending on the given parameter action
             // FIXME: DETERMINE IF THESE CALLS ARE DONE IN THREADS

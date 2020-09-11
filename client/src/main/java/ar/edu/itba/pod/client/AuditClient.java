@@ -27,7 +27,7 @@ public class AuditClient {
 
         LOG.info("AuditClient has started...");
 
-        final AuditService service = (AuditService) Naming.lookup("//" + clientArguments.getServerAddress() + "/auditService");
+        final AuditService service = (AuditService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + AuditService.class.getName());
 
         PartyVoteHandler handler = new PartyVoteHandlerImpl();
 

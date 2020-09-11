@@ -6,17 +6,19 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class NationalElection {
+    /**
+     * List to hold all the votes in order to be able to perform the automatic runoff
+     */
     private final List<Map<Party, Long>> ballots = new ArrayList<>();
     private final Map<Party, Long> scoringRoundResults = new HashMap<>();
     private final Map<Party, Double> automaticRunoffResult = new HashMap<>();
 
     public NationalElection() { }
 
-    public int addSparBallots(List<Map<Party, Long>> newBallots) {
+    public void emitVote(Map<Party, Long> vote) {
         synchronized (this.ballots) {
-            this.ballots.addAll(newBallots);
+            this.ballots.add(vote);
         }
-        return newBallots.size();
     }
 
     /**

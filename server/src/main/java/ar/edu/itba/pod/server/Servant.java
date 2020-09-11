@@ -3,25 +3,32 @@ package ar.edu.itba.pod.server;
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.exceptions.ElectionNotStartedException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
-
-import java.rmi.RemoteException;
-import java.util.*;
-
-import ar.edu.itba.pod.server.callables.FptpBatch;
-import ar.edu.itba.pod.server.callables.SpavBatch;
-import ar.edu.itba.pod.server.callables.StarBatch;
 import ar.edu.itba.pod.server.models.NationalElection;
 import ar.edu.itba.pod.server.models.StateElection;
 import ar.edu.itba.pod.server.models.Table;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
+import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Servant implements AuditService, ManagementService, VoteService, QueryService {
+    private static final Logger LOG = LoggerFactory.getLogger(Servant.class);
+
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
     private final HashMap<Integer, Table> tables = new HashMap<>();
-    private StateElection stateElection = new StateElection();
-    private NationalElection nationalElection = new NationalElection();
+    private final StateElection stateElection = new StateElection();
+    private final NationalElection nationalElection = new NationalElection();
+
+    /**
+     * Variable to hold the state of the election
+     */
     private ElectionState electionState = ElectionState.PENDING;
 
     private final ExecutorService executor = Executors.newCachedThreadPool();
@@ -101,21 +108,32 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     //                                      VOTE METHODS
     //////////////////////////////////////////////////////////////////////////////////////////
     
-    public int emitVotes(List<Vote> votes) throws RemoteException, ExecutionException, InterruptedException {
-        // independently, we process votes on three dimensions needed
-        Future<Integer> fptpResult = executor.submit(new FptpBatch(votes, tables));
-        Future<Integer> starResult = executor.submit(new StarBatch(votes, nationalElection));
-        Future<Integer> spavResult = executor.submit(new SpavBatch(votes, stateElection));
+    public void emitVote(Vote vote) throws RemoteException, ExecutionException, InterruptedException, InvalidElectionStateException {
+        // Syncronize the access to the election state
+        synchronized (this.STATE_LOCK){
+            if (this.electionState != ElectionState.OPEN){
+                throw new InvalidElectionStateException("Elections haven't started or have already finished");
+            }
+        }
 
-        fptpResult.get();
-        // once all fptp results have been processed we can safely notify audit officers at their table
-        executor.submit(() -> {for(Vote v: votes) notifyPartyVote(v); return "Finished";});
+        // Synchronize access to see if the key exists, perform the emission out of syncronized block
+        synchronized (this.tables){
+            if (!this.tables.containsKey(vote.getTable())){
+                this.tables.put(vote.getTable(), new Table(vote.getTable()));
+            }
+        }
 
-        spavResult.get();
-        starResult.get();
+        // Emit the vote for the table
+        this.tables.get(vote.getTable()).emitVote(vote.getFptpVote());
 
-        // finished processing all dimensions
-        return votes.size();
+        // Processing the SPAV vote for the state election
+        this.stateElection.emitVote(vote.getProvince(), vote.getSpavVote());
+
+        // Processing the STAR vote for the national election
+        this.nationalElection.emitVote(vote.getStarVote());
+
+        // Notify the vote
+        this.notifyPartyVote(vote);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

@@ -35,7 +35,7 @@ public class QueryClient {
         }
 
 
-        final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/queryService");
+        final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + QueryService.class.getName());
 
         if(clientArguments.getProvinceName().equals("") && clientArguments.getTableID() == null){
             try {

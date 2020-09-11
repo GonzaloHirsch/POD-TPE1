@@ -1,0 +1,6 @@
+#!/bin/bash
+
+for i in {1..100}
+do
+   ./run-vote.sh -DserverAddress=127.0.0.1:1099 -DvotesPath=../../../examples/votes.csv &
+done
