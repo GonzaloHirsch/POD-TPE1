@@ -12,5 +12,6 @@ public interface QueryService extends Remote {
     ElectionResults getNationalResults() throws RemoteException, InvalidElectionStateException;
     ElectionResults getProvinceResults(Province province) throws RemoteException, InvalidElectionStateException;
     ElectionResults getTableResults(Integer tableID) throws RemoteException, InvalidElectionStateException;
-    ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException;
+    ElectionResults getAllTableResults() throws RemoteException;
+    ElectionResults getProvinceTableResults() throws RemoteException;
 }

@@ -101,6 +101,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                 throw new InvalidElectionStateException("Elections haven't started or have already finished");
             }
             this.nationalElection.computeNationalElectionResults();
+            // TODO compute provinceResults
             this.electionState = ElectionState.CLOSED;
         }
     }
@@ -209,7 +210,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
     // Will only be called when getNationalResults or getProvinceResult is called and elections are still open
     @Override
-    public ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException {
+    public ElectionResults getAllTableResults() throws RemoteException {
         Map<Party, Long> fptpVotes;
         synchronized (this.tables) {
             fptpVotes = this.tables.values().stream()
@@ -222,6 +223,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         fptpVotes.forEach((key, value) -> fptpResult.add(new AbstractMap.SimpleEntry<>(key, (double) value / totalVotes)));
 
         return new ElectionResults(fptpResult);
+    }
 
+    @Override
+    public ElectionResults getProvinceTableResults() throws RemoteException {
+        return null;
     }
 }
