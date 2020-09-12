@@ -4,6 +4,7 @@ import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.client.arguments.ManagementClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.models.ElectionState;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +12,6 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 
 public class ManagementClient {
     private static final Logger LOG = LoggerFactory.getLogger(ManagementClient.class);

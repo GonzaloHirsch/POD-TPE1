@@ -1,16 +1,16 @@
 package ar.edu.itba.pod;
 
 
-import ar.edu.itba.pod.exceptions.ElectionNotStartedException;
+import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.models.Province;
+import ar.edu.itba.pod.models.ElectionResults;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
 
 public interface QueryService extends Remote {
-    TreeSet<Map.Entry<Party,Long>> getNationalResults() throws RemoteException, ElectionNotStartedException;
-    TreeSet<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException, ElectionNotStartedException;
-    TreeSet<Map.Entry<Party, Double>> getTableResults(Integer tableID) throws RemoteException, ElectionNotStartedException;
+    ElectionResults getNationalResults() throws RemoteException, InvalidElectionStateException;
+    ElectionResults getProvinceResults(Province province) throws RemoteException, InvalidElectionStateException;
+    ElectionResults getTableResults(Integer tableID) throws RemoteException, InvalidElectionStateException;
+    ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException;
 }

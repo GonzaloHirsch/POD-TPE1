@@ -1,7 +1,7 @@
 package ar.edu.itba.pod.server.models;
 
-import ar.edu.itba.pod.Party;
-import ar.edu.itba.pod.Province;
+import ar.edu.itba.pod.models.Party;
+import ar.edu.itba.pod.models.Province;
 
 import java.util.*;
 

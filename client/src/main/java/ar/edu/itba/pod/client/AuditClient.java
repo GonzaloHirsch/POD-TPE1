@@ -3,6 +3,9 @@ package ar.edu.itba.pod.client;
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.client.arguments.AuditClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.models.Party;
+import ar.edu.itba.pod.models.PartyVoteHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +46,7 @@ public class AuditClient {
                 service.registerAuditOfficer(party, table, handler);
             } catch (RemoteException e) {
                 LOG.error("Error registering the audit officer");
-            } catch (ElectionsInProgressException e) {
+            } catch (InvalidElectionStateException e) {
                 LOG.error("Elections in progress. Can no longer register audit officers");
             }
             System.out.format("Audit officer of %s registered on polling place %s\n", party.toString(), table);

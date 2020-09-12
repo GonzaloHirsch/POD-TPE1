@@ -1,7 +1,7 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.PartyVoteHandler;
-import ar.edu.itba.pod.Vote;
+import ar.edu.itba.pod.models.PartyVoteHandler;
+import ar.edu.itba.pod.models.Vote;
 
 public class PartyVoteHandlerImpl implements PartyVoteHandler {
     @Override

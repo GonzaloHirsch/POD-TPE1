@@ -1,11 +1,11 @@
 package ar.edu.itba.pod.client;
 
 import ar.edu.itba.pod.*;
-import ar.edu.itba.pod.client.arguments.ManagementClientArguments;
 import ar.edu.itba.pod.client.arguments.QueryClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
-import ar.edu.itba.pod.exceptions.ElectionNotStartedException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.models.Province;
+import ar.edu.itba.pod.models.ElectionResults;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,10 +13,6 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeSet;
 
 public class QueryClient {
     private static final Logger LOG = LoggerFactory.getLogger(QueryClient.class);
@@ -39,20 +35,20 @@ public class QueryClient {
 
         if(clientArguments.getProvinceName().equals("") && clientArguments.getTableID() == null){
             try {
-                TreeSet<Map.Entry<Party, Long>> nationalResults = service.getNationalResults();
-            } catch (ElectionNotStartedException e) {
+                ElectionResults nationalResults = service.getNationalResults();
+            } catch (InvalidElectionStateException e) {
                 e.printStackTrace();
             }
         }else if(clientArguments.getTableID() != null){
             try {
-                TreeSet<Map.Entry<Party, Double>> tableResults = service.getTableResults(clientArguments.getTableID());
-            } catch (ElectionNotStartedException e) {
+                ElectionResults tableResults = service.getTableResults(clientArguments.getTableID());
+            } catch (InvalidElectionStateException e) {
                 e.printStackTrace();
             }
         }else{
             try {
-                TreeSet<Map.Entry<Party, Long>> stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
-            } catch (ElectionNotStartedException e) {
+                ElectionResults stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
+            } catch (InvalidElectionStateException e) {
                 e.printStackTrace();
             }
         }

@@ -4,6 +4,9 @@ import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.client.arguments.VotingClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.models.Party;
+import ar.edu.itba.pod.models.Province;
+import ar.edu.itba.pod.models.Vote;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

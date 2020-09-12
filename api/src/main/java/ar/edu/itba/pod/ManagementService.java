@@ -1,6 +1,7 @@
 package ar.edu.itba.pod;
 
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.models.ElectionState;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

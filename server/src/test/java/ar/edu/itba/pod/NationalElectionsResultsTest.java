@@ -1,5 +1,6 @@
 package ar.edu.itba.pod;
 
+import ar.edu.itba.pod.models.Party;
 import ar.edu.itba.pod.server.models.NationalElection;
 import org.junit.Before;
 import org.junit.Test;

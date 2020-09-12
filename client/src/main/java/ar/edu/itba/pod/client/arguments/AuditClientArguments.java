@@ -1,9 +1,8 @@
 package ar.edu.itba.pod.client.arguments;
 
-import ar.edu.itba.pod.Party;
+import ar.edu.itba.pod.models.Party;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 
-import java.util.Optional;
 import java.util.Properties;
 
 public class AuditClientArguments {

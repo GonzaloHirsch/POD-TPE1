@@ -1,5 +1,7 @@
 package ar.edu.itba.pod;
 
+import ar.edu.itba.pod.models.Party;
+import ar.edu.itba.pod.models.Province;
 import ar.edu.itba.pod.server.models.StateElection;
 import org.junit.Before;
 import org.junit.Test;

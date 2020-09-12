@@ -1,8 +1,8 @@
 package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.*;
-import ar.edu.itba.pod.exceptions.ElectionNotStartedException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.models.*;
 import ar.edu.itba.pod.server.models.NationalElection;
 import ar.edu.itba.pod.server.models.StateElection;
 import ar.edu.itba.pod.server.models.Table;
@@ -37,7 +37,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public void registerAuditOfficer(Party party, int table, PartyVoteHandler handler) throws RemoteException {
+    public void registerAuditOfficer(Party party, int table, PartyVoteHandler handler) throws RemoteException, InvalidElectionStateException {
         synchronized (this.STATE_LOCK) {
             // If election is still pending, it can be registered
             if (this.electionState == ElectionState.PENDING) {
@@ -52,7 +52,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                             .add(handler);
                 }
             } else {
-                throw new ElectionsInProgressException();
+                throw new InvalidElectionStateException("Elections in progress. Can no longer register an audit officer");
             }
         }
     }
@@ -138,37 +138,66 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public TreeSet<Map.Entry<Party,Long>> getNationalResults() throws RemoteException, ElectionNotStartedException {
-        synchronized (this.STATE_LOCK) {
-            if(electionState==ElectionState.OPEN){
+    public ElectionResults getNationalResults() throws RemoteException, InvalidElectionStateException {
+        ElectionState electionState;
 
-            }else if(electionState==ElectionState.CLOSED){
-                nationalElection.getNationalElectionWinner();
-                return nationalElection.getOrderedScoringRoundResults();
-            }
+        // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
+        synchronized (this.STATE_LOCK) {
+            electionState = ElectionState.fromValue(this.electionState.getDescription());
         }
-        throw new ElectionNotStartedException("");
+
+        if(electionState == ElectionState.OPEN) {
+            // FPTP results
+
+        } else if(electionState == ElectionState.CLOSED){
+            Party winner = nationalElection.getNationalElectionWinner();
+            NationalElectionsResult nationalResults = new NationalElectionsResult(
+                    nationalElection.getOrderedScoringRoundResults(),
+                    nationalElection.getOrderedAutomaticRunoffResults(),
+                    winner
+            );
+            return new ElectionResults(nationalResults);
+        }
+
+        // Elections have not began
+        throw new InvalidElectionStateException("Elections PENDING. Can not request national results");
     }
 
     @Override
-    public TreeSet<Map.Entry<Party,Long>> getProvinceResults(Province province) throws RemoteException, ElectionNotStartedException {
+    public ElectionResults getProvinceResults(Province province) throws RemoteException, InvalidElectionStateException {
+        ElectionState electionState;
+
+        // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
         synchronized (this.STATE_LOCK) {
-            if(electionState==ElectionState.OPEN){
-
-            }else if(electionState==ElectionState.CLOSED){
-
-            }
+            electionState = ElectionState.fromValue(this.electionState.getDescription());
         }
-        throw new ElectionNotStartedException("");
+
+        if(electionState == ElectionState.OPEN) {
+
+        }else if(electionState == ElectionState.CLOSED){
+
+        }
+
+        throw new InvalidElectionStateException("Elections PENDING. Can not request state results");
     }
 
     @Override
-    public TreeSet<Map.Entry<Party, Double>> getTableResults(Integer tableID) throws RemoteException, ElectionNotStartedException {
+    public ElectionResults getTableResults(Integer tableID) throws RemoteException, InvalidElectionStateException {
+        ElectionState electionState;
+
+        // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
         synchronized (this.STATE_LOCK) {
-            if(electionState == ElectionState.OPEN || electionState == ElectionState.CLOSED){
-                return tables.get(tableID).getResultsFromTable();
-            }
+            electionState = ElectionState.fromValue(this.electionState.getDescription());
         }
-        throw new ElectionNotStartedException("");
+
+        if(electionState != ElectionState.PENDING){
+            return new ElectionResults(tables.get(tableID).getResultsFromTable());
+        }
+        throw new InvalidElectionStateException("Elections PENDING. Can not request FPTP results");
+    }
+
+    @Override
+    public ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException {
+        return null;
     }
 }

@@ -1,4 +1,7 @@
-package ar.edu.itba.pod;
+package ar.edu.itba.pod.models;
+
+import ar.edu.itba.pod.models.Party;
+import ar.edu.itba.pod.models.Province;
 
 import java.io.Serializable;
 import java.util.List;

@@ -1,6 +1,6 @@
 package ar.edu.itba.pod.server.models;
 
-import ar.edu.itba.pod.Party;
+import ar.edu.itba.pod.models.Party;
 
 import java.util.*;
 import java.util.stream.Collectors;
