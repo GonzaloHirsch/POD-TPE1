@@ -12,6 +12,8 @@ public class NationalElection {
     private final List<Map<Party, Long>> ballots = new ArrayList<>();
     private final Map<Party, Long> scoringRoundResults = new HashMap<>();
     private final Map<Party, Double> automaticRunoffResult = new HashMap<>();
+    private Party winner = null;
+
 
     // Comparators
     private static final Comparator<Map.Entry<Party, Long>> scoringComparator = (e1, e2) -> {
@@ -39,35 +41,13 @@ public class NationalElection {
     }
 
     /**
-     * Runs the national elections to calculate results.
-     * @return The party winner of the elections
+     * Computes the NationalElection Results
+     * Is called inside the lock when closing the elections
+     * Will only be called ONCE and hence do not need to be synchronized
      */
-    public Party getNationalElectionWinner() {
+    public void computeNationalElectionResults() {
         List<Party> scoringRoundWinners = this.scoringRound();
-        return this.automaticRunoff(scoringRoundWinners);
-    }
-
-    /**
-     * Once elections has been run, this method orders the results of the scoring round
-     * @return List of map entries of the scoring round results
-     */
-    public TreeSet<Map.Entry<Party, Long>> getOrderedScoringRoundResults() {
-        if (this.scoringRoundResults.isEmpty()) return new TreeSet<>();
-
-        TreeSet<Map.Entry<Party, Long>> orderedSet = new TreeSet<>(scoringComparator);
-        orderedSet.addAll(this.scoringRoundResults.entrySet());
-        return orderedSet;
-    }
-    /**
-     * Once elections has been run, this method orders the results of the automatic runoff
-     * @return List of map entries of the runoff results
-     */
-    public TreeSet<Map.Entry<Party, Double>> getOrderedAutomaticRunoffResults() {
-        if (this.automaticRunoffResult.isEmpty()) return new TreeSet<>();
-
-        TreeSet<Map.Entry<Party, Double>> orderedSet = new TreeSet<>(runoffComparator);
-        orderedSet.addAll(this.automaticRunoffResult.entrySet());
-        return orderedSet;
+        winner = this.automaticRunoff(scoringRoundWinners);
     }
 
     /**
@@ -75,7 +55,7 @@ public class NationalElection {
      * by summing up the vote value (0-5) of said party of all ballots.
      * @return List of top two candidates
      */
-    public List<Party> scoringRound() {
+    private List<Party> scoringRound() {
         long newScore;
         long maxScore = 0;
         long nextMaxScore = 0;
@@ -110,7 +90,7 @@ public class NationalElection {
      * A party adds points by having the larger vote value on a ballot
      * @return Winning party of automatic runoffs
      */
-    public Party automaticRunoff(final List<Party> winners) {
+    private Party automaticRunoff(final List<Party> winners) {
 
         if (winners.size() != 2) {
             System.out.println("Must be two winners from the scoring round");
@@ -135,6 +115,47 @@ public class NationalElection {
         // 4. If candidates have the same score, the smallest alphanumeric one wins
         long maxScore = Collections.max(runoffResults.entrySet(), Comparator.comparingLong(Map.Entry::getValue)).getValue();
         return retrievePartyWithScore(runoffResults, maxScore, 1).get(0);
+    }
+
+    /* Methods from below will only be called once the elections are closed and therefore, the national
+     * results already calculated. Since threads will only be reading, there is no need to synchronize
+     */
+
+    /**
+     * Returns the national election winner.
+     * @return The party winner of the elections
+     */
+    public Party getNationalElectionWinner() {
+        return winner;
+    }
+
+    /**
+     * Once elections has been run, this method orders the results of the scoring round
+     * @return List of map entries of the scoring round results
+     */
+    public TreeSet<Map.Entry<Party, Long>> getOrderedScoringRoundResults() {
+        TreeSet<Map.Entry<Party, Long>> orderedSet = new TreeSet<>(scoringComparator);
+
+        synchronized (this.scoringRoundResults) {
+            if (!this.scoringRoundResults.isEmpty()) {
+                orderedSet.addAll(this.scoringRoundResults.entrySet());
+            }
+        }
+        return orderedSet;
+    }
+    /**
+     * Once elections has been run, this method orders the results of the automatic runoff
+     * @return List of map entries of the runoff results
+     */
+    public TreeSet<Map.Entry<Party, Double>> getOrderedAutomaticRunoffResults() {
+        TreeSet<Map.Entry<Party, Double>> orderedSet = new TreeSet<>(runoffComparator);
+
+        synchronized (this.automaticRunoffResult) {
+            if (!this.automaticRunoffResult.isEmpty()) {
+                orderedSet.addAll(this.automaticRunoffResult.entrySet());
+            }
+        }
+        return orderedSet;
     }
 
     /**

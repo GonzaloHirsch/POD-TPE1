@@ -42,14 +42,18 @@ public class Table {
     }
 
     public TreeSet<Map.Entry<Party,Double>> getResultsFromTable(){
-        if(votes.size() == 0) return new TreeSet<>();
+        TreeSet<Map.Entry<Party, Double>> entries;
 
-        // Summing up the total amount of votes
-        double totalVotes = (double) this.votes.values().stream().mapToLong(AtomicLong::get).reduce(0, Long::sum);
+        // Syncronizing in order to stop incoming votes while calculating the result
+        synchronized (this.votes) {
+            if (votes.size() == 0) return new TreeSet<>();
 
-        TreeSet<Map.Entry<Party,Double>> entries = new TreeSet<>(fptpComparator);
-        votes.forEach((key, value) -> entries.add(new AbstractMap.SimpleEntry<>(key, (((Long) value.get()).doubleValue()) / totalVotes)));
+            // Summing up the total amount of votes
+            double totalVotes = (double) this.votes.values().stream().mapToLong(AtomicLong::get).reduce(0, Long::sum);
 
+            entries = new TreeSet<>(fptpComparator);
+            votes.forEach((key, value) -> entries.add(new AbstractMap.SimpleEntry<>(key, (((Long) value.get()).doubleValue()) / totalVotes)));
+        }
         return entries;
     }
 

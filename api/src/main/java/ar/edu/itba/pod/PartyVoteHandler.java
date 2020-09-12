@@ -1,4 +1,6 @@
-package ar.edu.itba.pod.models;
+package ar.edu.itba.pod;
+
+import ar.edu.itba.pod.models.Vote;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;

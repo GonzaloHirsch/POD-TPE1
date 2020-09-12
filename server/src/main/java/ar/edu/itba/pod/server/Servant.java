@@ -100,6 +100,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             if (this.electionState != ElectionState.OPEN){
                 throw new InvalidElectionStateException("Elections haven't started or have already finished");
             }
+            this.nationalElection.computeNationalElectionResults();
             this.electionState = ElectionState.CLOSED;
         }
     }
