@@ -52,6 +52,7 @@ public class QueryClient {
         }else if(clientArguments.getTableID() != null){
             try {
                 ElectionResults tableResults = service.getTableResults(clientArguments.getTableID());
+                ftptQuery(tableResults,clientArguments,true);
             } catch (InvalidElectionStateException e) {
                 e.printStackTrace();
             }
