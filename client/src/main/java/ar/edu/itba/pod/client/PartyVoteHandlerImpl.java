@@ -6,6 +6,6 @@ import ar.edu.itba.pod.Vote;
 public class PartyVoteHandlerImpl implements PartyVoteHandler {
     @Override
     public void onPartyVote(Vote vote) {
-        System.out.format("New vote for %s on polling place %d", vote.getFptpVote().toString(), vote.getTable());
+        System.out.format("New vote for %s on polling place %d\n", vote.getFptpVote().toString(), vote.getTable());
     }
 }
