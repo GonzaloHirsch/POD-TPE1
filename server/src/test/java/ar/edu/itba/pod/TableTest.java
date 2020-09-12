@@ -1,11 +1,14 @@
 package ar.edu.itba.pod;
 
 import ar.edu.itba.pod.models.Party;
+import ar.edu.itba.pod.models.Province;
 import ar.edu.itba.pod.server.models.Table;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.TreeSet;
 
 import static org.junit.Assert.assertEquals;
@@ -16,7 +19,7 @@ public class TableTest {
 
     @Before
     public void setUp() {
-        table = new Table(0);
+        table = new Table(0, Province.JUNGLE);
     }
 
     @Test
@@ -26,23 +29,28 @@ public class TableTest {
         assertEquals(1, table.getVotes(Party.BUFFALO));
     }
     @Test
-    public void testQuery(){
-        table.emitVote(Party.BUFFALO);
-        table.emitVote(Party.BUFFALO);
-        table.emitVote(Party.BUFFALO);
-        table.emitVote(Party.BUFFALO);
-        table.emitVote(Party.BUFFALO);
-        table.emitVote(Party.BUFFALO);
-        table.emitVote(Party.JACKALOPE);
-        table.emitVote(Party.LEOPARD);
-        table.emitVote(Party.LYNX);
-        table.emitVote(Party.OWL);
-        table.emitVote(Party.TIGER);
-        table.emitVote(Party.TURTLE);
+    public void testQueryResults(){
+        double totalVotes = 0;
+        Map<Party, Integer> votesPerParty = new HashMap<>();
+        for(Party p : Party.values()){
+            int votes = emitRandomVotesForParty(p);
+            votesPerParty.put(p, votes);
+            totalVotes+=votes;
+        }
 
-        TreeSet<Map.Entry<Party, Double>> results =table.getResultsFromTable();
+        TreeSet<Map.Entry<Party, Double>> results = table.getResultsFromTable();
+        double finalTotalVotes = totalVotes;
         results.forEach(e->{
-            System.out.println("PARTY " + e.getKey() + " - Voting: " + e.getValue());
+            assertEquals(new Double(votesPerParty.get(e.getKey())/ finalTotalVotes), e.getValue());
         });
+    }
+
+    private int emitRandomVotesForParty(Party party) {
+        Random random = new Random();
+        int votes = random.nextInt(100);
+        for(int i=0; i<votes; i++) {
+            table.emitVote(party);
+        }
+        return votes;
     }
 }

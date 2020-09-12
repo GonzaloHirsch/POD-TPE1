@@ -51,10 +51,6 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         synchronized (this.STATE_LOCK) {
             // If election is still pending, it can be registered
             if (this.electionState == ElectionState.PENDING) {
-                // Creates the table if it does not exist yet
-                synchronized (tables) {
-                    tables.computeIfAbsent(table, t -> new Table(table));
-                }
                 // Saving the vote handler to notify when new votes on a table for a certain party happen
                 synchronized (auditHandlers) {
                     auditHandlers.computeIfAbsent(party, p -> new HashMap<>())
@@ -118,17 +114,17 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     //////////////////////////////////////////////////////////////////////////////////////////
     
     public void emitVote(Vote vote) throws RemoteException, ExecutionException, InterruptedException, InvalidElectionStateException {
-        // Syncronize the access to the election state
+        // Synchronize the access to the election state
         synchronized (this.STATE_LOCK){
             if (this.electionState != ElectionState.OPEN){
                 throw new InvalidElectionStateException("Elections haven't started or have already finished");
             }
         }
 
-        // Synchronize access to see if the key exists, perform the emission out of syncronized block
+        // Synchronize access to see if the key exists, perform the emission out of synchronized block
         synchronized (this.tables){
             if (!this.tables.containsKey(vote.getTable())){
-                this.tables.put(vote.getTable(), new Table(vote.getTable()));
+                this.tables.put(vote.getTable(), new Table(vote.getTable(),vote.getProvince()));
             }
         }
 

@@ -1,12 +1,14 @@
 package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.models.Party;
+import ar.edu.itba.pod.models.Province;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Table {
     private final Integer ID;
+    private final Province province;
     private Map<Party, AtomicLong> votes = new HashMap<>();
 
     private static final Comparator<Map.Entry<Party, Double>> fptpComparator = (e1, e2) -> {
@@ -17,8 +19,9 @@ public class Table {
         return valueComparison;
     };
 
-    public Table(Integer ID) {
+    public Table(Integer ID, Province province) {
         this.ID = ID;
+        this.province = province;
         Arrays.stream(Party.values()).forEach(p -> votes.put(p, new AtomicLong(0)));
     }
 
@@ -44,7 +47,7 @@ public class Table {
     public TreeSet<Map.Entry<Party,Double>> getResultsFromTable(){
         TreeSet<Map.Entry<Party, Double>> entries;
 
-        // Syncronizing in order to stop incoming votes while calculating the result
+        // Synchronizing in order to stop incoming votes while calculating the result
         synchronized (this.votes) {
             if (votes.size() == 0) return new TreeSet<>();
 
@@ -56,5 +59,4 @@ public class Table {
         }
         return entries;
     }
-
 }
