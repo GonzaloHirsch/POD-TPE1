@@ -9,6 +9,14 @@ public class Table {
     private final Integer ID;
     private Map<Party, AtomicLong> votes = new HashMap<>();
 
+    private static final Comparator<Map.Entry<Party, Double>> fptpComparator = (e1, e2) -> {
+        int valueComparison = e2.getValue().compareTo(e1.getValue());
+        if (valueComparison == 0) {
+            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
+        }
+        return valueComparison;
+    };
+
     public Table(Integer ID) {
         this.ID = ID;
         Arrays.stream(Party.values()).forEach(p -> votes.put(p, new AtomicLong(0)));
@@ -25,6 +33,10 @@ public class Table {
         return ID;
     }
 
+    public Map<Party, AtomicLong> getVotes() {
+        return this.votes;
+    }
+
     public long getVotes(Party party) {
         return votes.get(party).longValue();
     }
@@ -35,16 +47,7 @@ public class Table {
         // Summing up the total amount of votes
         double totalVotes = (double) this.votes.values().stream().mapToLong(AtomicLong::get).reduce(0, Long::sum);
 
-        // Will compare first with percentage and then the party
-        Comparator<Map.Entry<Party, Double>> ftptComparator = (e1, e2) -> {
-            int keyComparison = e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-            if (keyComparison == 0) {
-                return e1.getValue().compareTo(e2.getValue());
-            }
-            return keyComparison;
-        };
-
-        TreeSet<Map.Entry<Party,Double>> entries = new TreeSet<>(ftptComparator);
+        TreeSet<Map.Entry<Party,Double>> entries = new TreeSet<>(fptpComparator);
         votes.forEach((key, value) -> entries.add(new AbstractMap.SimpleEntry<>(key, (((Long) value.get()).doubleValue()) / totalVotes)));
 
         return entries;

@@ -14,6 +14,7 @@ import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class Servant implements AuditService, ManagementService, VoteService, QueryService {
     private static final Logger LOG = LoggerFactory.getLogger(Servant.class);
@@ -31,6 +32,15 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
+
+    // Will compare first with percentage and then the party
+    private final static Comparator<Map.Entry<Party, Double>> fptpComparator = (e1, e2) -> {
+        int valueComparison = e2.getValue().compareTo(e1.getValue());
+        if (valueComparison == 0) {
+            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
+        }
+        return valueComparison;
+    };
 
     //////////////////////////////////////////////////////////////////////////////////////////
     //                                      AUDIT METHODS
@@ -147,7 +157,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
 
         if(electionState == ElectionState.OPEN) {
-            // FPTP results
+            return this.getAllTableResults();
 
         } else if(electionState == ElectionState.CLOSED){
             Party winner = nationalElection.getNationalElectionWinner();
@@ -174,7 +184,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
         if(electionState == ElectionState.OPEN) {
 
-        }else if(electionState == ElectionState.CLOSED){
+        } else if(electionState == ElectionState.CLOSED){
 
         }
 
@@ -196,8 +206,21 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         throw new InvalidElectionStateException("Elections PENDING. Can not request FPTP results");
     }
 
+    // Will only be called when getNationalResults or getProvinceResult is called and elections are still open
     @Override
     public ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException {
-        return null;
+        Map<Party, Long> fptpVotes;
+        synchronized (this.tables) {
+            fptpVotes = this.tables.values().stream()
+                    .flatMap(t -> t.getVotes().entrySet().stream())
+                    .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
+        }
+        double totalVotes = (double) fptpVotes.values().stream().reduce(0L, Long::sum);
+
+        TreeSet<Map.Entry<Party, Double>> fptpResult = new TreeSet<>(fptpComparator);
+        fptpVotes.forEach((key, value) -> fptpResult.add(new AbstractMap.SimpleEntry<>(key, (double) value / totalVotes)));
+
+        return new ElectionResults(fptpResult);
+
     }
 }

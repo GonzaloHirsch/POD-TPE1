@@ -13,6 +13,23 @@ public class NationalElection {
     private final Map<Party, Long> scoringRoundResults = new HashMap<>();
     private final Map<Party, Double> automaticRunoffResult = new HashMap<>();
 
+    // Comparators
+    private static final Comparator<Map.Entry<Party, Long>> scoringComparator = (e1, e2) -> {
+        int valueComparison = e2.getValue().compareTo(e1.getValue());
+        if (valueComparison == 0) {
+            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
+        }
+        return valueComparison;
+    };
+
+    private static final Comparator<Map.Entry<Party, Double>> runoffComparator = (e1, e2) -> {
+        int valueComparison = e2.getValue().compareTo(e1.getValue());
+        if (valueComparison == 0) {
+            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
+        }
+        return valueComparison;
+    };
+
     public NationalElection() { }
 
     public void emitVote(Map<Party, Long> vote) {
@@ -37,14 +54,6 @@ public class NationalElection {
     public TreeSet<Map.Entry<Party, Long>> getOrderedScoringRoundResults() {
         if (this.scoringRoundResults.isEmpty()) return new TreeSet<>();
 
-        Comparator<Map.Entry<Party, Long>> scoringComparator = (e1, e2) -> {
-            int keyComparison = e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-            if (keyComparison == 0) {
-                return e1.getValue().compareTo(e2.getValue());
-            }
-            return keyComparison;
-        };
-
         TreeSet<Map.Entry<Party, Long>> orderedSet = new TreeSet<>(scoringComparator);
         orderedSet.addAll(this.scoringRoundResults.entrySet());
         return orderedSet;
@@ -55,14 +64,6 @@ public class NationalElection {
      */
     public TreeSet<Map.Entry<Party, Double>> getOrderedAutomaticRunoffResults() {
         if (this.automaticRunoffResult.isEmpty()) return new TreeSet<>();
-
-        Comparator<Map.Entry<Party, Double>> runoffComparator = (e1, e2) -> {
-            int keyComparison = e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-            if (keyComparison == 0) {
-                return e1.getValue().compareTo(e2.getValue());
-            }
-            return keyComparison;
-        };
 
         TreeSet<Map.Entry<Party, Double>> orderedSet = new TreeSet<>(runoffComparator);
         orderedSet.addAll(this.automaticRunoffResult.entrySet());
