@@ -27,8 +27,8 @@ public class NationalElectionsResultsTest {
         nationalElection.computeNationalElectionResults();
 
         assertEquals(Party.JACKALOPE, nationalElection.getNationalElectionWinner());
-        System.out.println(nationalElection.getOrderedScoringRoundResults());
-        System.out.println(nationalElection.getOrderedAutomaticRunoffResults());
+        System.out.println(nationalElection.getSortedScoringRoundResults());
+        System.out.println(nationalElection.getSortedAutomaticRunoffResults());
     }
     
     private List<Map<Party, Long>> createBallots() {

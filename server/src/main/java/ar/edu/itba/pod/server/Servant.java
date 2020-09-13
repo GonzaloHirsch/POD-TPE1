@@ -115,28 +115,27 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     
     public void emitVote(Vote vote) throws RemoteException, ExecutionException, InterruptedException, InvalidElectionStateException {
         // Synchronize the access to the election state
-        synchronized (this.STATE_LOCK){
-            if (this.electionState != ElectionState.OPEN){
+        synchronized (this.STATE_LOCK) {
+            if (this.electionState != ElectionState.OPEN) {
                 throw new InvalidElectionStateException("Elections haven't started or have already finished");
             }
-        }
 
-        // Synchronize access to see if the key exists, perform the emission out of synchronized block
-        synchronized (this.tables){
-            if (!this.tables.containsKey(vote.getTable())){
-                this.tables.put(vote.getTable(), new Table(vote.getTable(),vote.getProvince()));
+            // Synchronize access to see if the key exists, perform the emission out of synchronized block
+            synchronized (this.tables) {
+                if (!this.tables.containsKey(vote.getTable())) {
+                    this.tables.put(vote.getTable(), new Table(vote.getTable(), vote.getProvince()));
+                }
             }
+
+            // Emit the vote for the table
+            this.tables.get(vote.getTable()).emitVote(vote.getFptpVote());
+
+            // Processing the SPAV vote for the state election
+            this.stateElection.emitVote(vote.getProvince(), vote.getSpavVote());
+
+            // Processing the STAR vote for the national election
+            this.nationalElection.emitVote(vote.getStarVote());
         }
-
-        // Emit the vote for the table
-        this.tables.get(vote.getTable()).emitVote(vote.getFptpVote());
-
-        // Processing the SPAV vote for the state election
-        this.stateElection.emitVote(vote.getProvince(), vote.getSpavVote());
-
-        // Processing the STAR vote for the national election
-        this.nationalElection.emitVote(vote.getStarVote());
-
         // Notify the vote
         this.notifyPartyVote(vote);
     }
@@ -160,8 +159,8 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         } else if(electionState == ElectionState.CLOSED){
             Party winner = nationalElection.getNationalElectionWinner();
             NationalElectionsResult nationalResults = new NationalElectionsResult(
-                    nationalElection.getOrderedScoringRoundResults(),
-                    nationalElection.getOrderedAutomaticRunoffResults(),
+                    nationalElection.getSortedScoringRoundResults(),
+                    nationalElection.getSortedAutomaticRunoffResults(),
                     winner
             );
             return new ElectionResults(nationalResults);

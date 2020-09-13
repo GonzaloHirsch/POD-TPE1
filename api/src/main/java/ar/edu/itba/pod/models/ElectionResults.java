@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.TreeSet;
 
 public class ElectionResults implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private VotingType votingType;
     private NationalElectionsResult nationalElectionsResult = null;
     private StateElectionsResult stateElectionsResult = null;
