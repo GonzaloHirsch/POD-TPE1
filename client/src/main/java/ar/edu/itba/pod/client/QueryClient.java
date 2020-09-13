@@ -102,24 +102,25 @@ public class QueryClient {
         }
 
         if(showWinner){
-            outputString.append("\nWinner\n" + results.getFptpResult().first().getKey());
+            outputString.append("\nWinner\n").append(results.getFptpResult().first().getKey());
         }
         write(clientArguments.getOutPutPath(), outputString.toString());
     }
 
     public static void nationalQuery(ElectionResults nationalResults, QueryClientArguments clientArguments) {
-        TreeSet<Map.Entry<Party,Double>> automaticRunoff    = nationalResults.getNationalElectionsResult().getAutomaticRunoffResults();
         TreeSet<Map.Entry<Party,Long>> scoringRound         = nationalResults.getNationalElectionsResult().getScoringRoundResults();
+        TreeSet<Map.Entry<Party,Double>> automaticRunoff    = nationalResults.getNationalElectionsResult().getAutomaticRunoffResults();
         Party winner                                        = nationalResults.getNationalElectionsResult().getWinner();
 
         StringBuilder outputString = new StringBuilder();
         outputString.append("Score;Party");
-        for(Map.Entry<Party, Double> pair : automaticRunoff){
+        for(Map.Entry<Party, Long> pair : scoringRound){
             outputString.append("\n");
             outputString.append(pair.getValue()).append(";").append(pair.getKey());
         }
+
         outputString.append("\nPercentage;Party");
-        for(Map.Entry<Party, Long> pair : scoringRound){
+        for(Map.Entry<Party, Double> pair : automaticRunoff){
             outputString.append("\n");
             outputString.append(pair.getValue()).append(";").append(pair.getKey());
         }
@@ -134,7 +135,7 @@ public class QueryClient {
             myWriter.write(value);
             myWriter.close();
         } catch (IOException e) {
-            System.out.println("An error occurred.");
+            System.out.println("An error occurred when writing the election results to " + filename);
             e.printStackTrace();
         }
     }
