@@ -59,7 +59,10 @@ public class VoteClient {
                 // Emitting votes
                 emitAllVotes(service, votes);
 
-                System.out.println(String.format("{} votes registered", votes.size()));
+                System.out.printf("%d votes registered\n", votes.size());
+
+                // Shutdown and wait
+                executor.shutdown();
             } catch (IOException e) {
                 System.out.println("ERROR: Invalid file given");
             }
@@ -94,6 +97,7 @@ public class VoteClient {
             try {
                 service.emitVote(vote);
             } catch (RemoteException | ExecutionException | InterruptedException | InvalidElectionStateException e) {
+                e.printStackTrace();
                 System.out.println("ERROR: Server error processing vote");
             }
         };
