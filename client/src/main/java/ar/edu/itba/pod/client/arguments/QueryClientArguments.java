@@ -6,7 +6,7 @@ import java.util.Optional;
 import java.util.Properties;
 
 public class QueryClientArguments {
-    private String serverAddress,provinceName,outPutPath;
+    private String serverAddress ="",provinceName="",outPutPath;
     private Integer tableID = null;
 
     private static final String STATE_KEY = "state";

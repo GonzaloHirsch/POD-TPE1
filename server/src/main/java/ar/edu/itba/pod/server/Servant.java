@@ -150,7 +150,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
         synchronized (this.STATE_LOCK) {
-            electionState = ElectionState.fromValue(this.electionState.getDescription());
+            electionState = this.electionState;
         }
 
         if(electionState == ElectionState.OPEN) {
