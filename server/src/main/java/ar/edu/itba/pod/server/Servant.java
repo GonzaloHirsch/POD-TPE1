@@ -181,8 +181,9 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
 
         if(electionState == ElectionState.OPEN) {
-            // TODO: @Marina, get fptp results per province
-        } else if(electionState == ElectionState.CLOSED){
+            return this.getProvinceTableResults(province);
+        }
+        else if(electionState == ElectionState.CLOSED){
             StateElectionsResult stateResults = new StateElectionsResult(province,
                     stateElection.getFirstRound(province),
                     stateElection.getSecondRound(province),
@@ -209,7 +210,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         throw new InvalidElectionStateException("Elections PENDING. Can not request FPTP results");
     }
 
-    // Will only be called when getNationalResults or getProvinceResult is called and elections are still open
+    // Will only be called when getNationalResults is called and elections are still open
     @Override
     public ElectionResults getAllTableResults() throws RemoteException {
         Map<Party, Long> fptpVotes;
@@ -218,16 +219,28 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     .flatMap(t -> t.getVotes().entrySet().stream())
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
+        return newElectionResults(fptpVotes);
+    }
+
+    // Will only be called when getProvinceResults is called and elections are still open
+    @Override
+    public ElectionResults getProvinceTableResults(Province province) throws RemoteException {
+        Map<Party, Long> fptpVotes;
+        synchronized (this.tables) {
+            fptpVotes = this.tables.values().stream()
+                    .filter(t -> t.getProvince().equals(province))
+                    .flatMap(t -> t.getVotes().entrySet().stream())
+                    .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
+        }
+        return newElectionResults(fptpVotes);
+    }
+
+    private ElectionResults newElectionResults(Map<Party, Long> fptpVotes) {
         double totalVotes = (double) fptpVotes.values().stream().reduce(0L, Long::sum);
 
         TreeSet<Map.Entry<Party, Double>> fptpResult = new TreeSet<>(fptpComparator);
         fptpVotes.forEach((key, value) -> fptpResult.add(new AbstractMap.SimpleEntry<>(key, (double) value / totalVotes)));
 
         return new ElectionResults(fptpResult);
-    }
-
-    @Override
-    public ElectionResults getProvinceTableResults() throws RemoteException {
-        return null;
     }
 }

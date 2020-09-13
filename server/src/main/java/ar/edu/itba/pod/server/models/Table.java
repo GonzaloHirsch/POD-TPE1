@@ -36,6 +36,10 @@ public class Table {
         return ID;
     }
 
+    public Province getProvince() {
+        return province;
+    }
+
     public Map<Party, AtomicLong> getVotes() {
         return this.votes;
     }
