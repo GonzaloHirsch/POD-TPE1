@@ -11,10 +11,6 @@ public class NationalElection {
      * List to hold all the votes in order to be able to perform the automatic runoff
      */
     private final List<Map<Party, Long>> ballots = new ArrayList<>();
-    private final Map<Party, Long> scoringRoundResults = new HashMap<>();
-    private final Map<Party, Double> automaticRunoffResult = new HashMap<>();
-    private Party winner = null;
-
 
     // Comparators
     private static final Comparator<Map.Entry<Party, Long>> scoringComparator = (e1, e2) -> {
@@ -32,6 +28,11 @@ public class NationalElection {
         }
         return valueComparison;
     };
+
+    // Sorted results
+    private TreeSet<Map.Entry<Party, Long>> sortedScoringResults;
+    private TreeSet<Map.Entry<Party, Double>> sortedRunoffResults;
+    private Party winner = null;
 
     public NationalElection() { }
 
@@ -57,32 +58,25 @@ public class NationalElection {
      * @return List of top two candidates
      */
     private List<Party> scoringRound() {
+        final Map<Party, Long> scoringRoundResults = new HashMap<>();
         long newScore;
-        long maxScore = 0;
-        long nextMaxScore = 0;
 
         for (Map<Party, Long> ballot: this.ballots) {
             for (Map.Entry<Party, Long> entry: ballot.entrySet()) {
-                newScore = this.scoringRoundResults.computeIfAbsent(entry.getKey(), k -> 0L) + entry.getValue();
-
-                // Saving the two top scores
-                if (newScore > maxScore) {
-                    nextMaxScore = maxScore;
-                    maxScore = newScore;
-                }
-
+                newScore = scoringRoundResults.computeIfAbsent(entry.getKey(), k -> 0L) + entry.getValue();
                 // Saving the current score of the party
-                this.scoringRoundResults.put(entry.getKey(), newScore);
+                scoringRoundResults.put(entry.getKey(), newScore);
             }
         }
-        // Retrieve the candidates that have the maximum vote
-        List<Party> winningCandidates = this.retrievePartyWithScore(this.scoringRoundResults, maxScore, 2);
-        if (winningCandidates.size() > 1) {
-            return winningCandidates;
-        }
 
-        // Retrieving the second winner from the list of candidates with nextMaxScore
-        winningCandidates.addAll(this.retrievePartyWithScore(this.scoringRoundResults, nextMaxScore, 1));
+        this.sortedScoringResults = new TreeSet<>(scoringComparator);
+        this.sortedScoringResults.addAll(scoringRoundResults.entrySet());
+
+        // Sorting the candidates and obtaining the two top ones
+        List<Party> winningCandidates = this.sortedScoringResults.stream().limit(2).map(Map.Entry::getKey).collect(Collectors.toList());
+        if (winningCandidates.size() != 2) {
+            throw new IllegalStateException("Scoring round has to have exactly 2 winners");
+        }
         return winningCandidates;
     }
 
@@ -92,6 +86,7 @@ public class NationalElection {
      * @return Winning party of automatic runoffs
      */
     private Party automaticRunoff(final List<Party> winners) {
+        final Map<Party, Double> automaticRunoffResult = new HashMap<>();
 
         /*if (winners.size() != 2) {
             System.out.println("Must be two winners from the scoring round");
@@ -110,53 +105,13 @@ public class NationalElection {
         // 3. Calculate the percentages for each party
         double totalScore = runoffResults.values().stream().mapToLong(v -> v).sum();
         runoffResults.forEach((party, score) -> {
-            this.automaticRunoffResult.put(party, (double) score / totalScore);
+            automaticRunoffResult.put(party, (double) score / totalScore);
         });
 
-        // 4. If candidates have the same score, the smallest alphanumeric one wins
-        long maxScore = Collections.max(runoffResults.entrySet(), Comparator.comparingLong(Map.Entry::getValue)).getValue();
-        return retrievePartyWithScore(runoffResults, maxScore, 1).get(0);
-    }
-
-    /* Methods from below will only be called once the elections are closed and therefore, the national
-     * results already calculated. Since threads will only be reading, there is no need to synchronize
-     */
-
-    /**
-     * Returns the national election winner.
-     * @return The party winner of the elections
-     */
-    public Party getNationalElectionWinner() {
-        return winner;
-    }
-
-    /**
-     * Once elections has been run, this method orders the results of the scoring round
-     * @return List of map entries of the scoring round results
-     */
-    public TreeSet<Map.Entry<Party, Long>> getOrderedScoringRoundResults() {
-        TreeSet<Map.Entry<Party, Long>> orderedSet = new TreeSet<>(scoringComparator);
-
-        synchronized (this.scoringRoundResults) {
-            if (!this.scoringRoundResults.isEmpty()) {
-                orderedSet.addAll(this.scoringRoundResults.entrySet());
-            }
-        }
-        return orderedSet;
-    }
-    /**
-     * Once elections has been run, this method orders the results of the automatic runoff
-     * @return List of map entries of the runoff results
-     */
-    public TreeSet<Map.Entry<Party, Double>> getOrderedAutomaticRunoffResults() {
-        TreeSet<Map.Entry<Party, Double>> orderedSet = new TreeSet<>(runoffComparator);
-
-        synchronized (this.automaticRunoffResult) {
-            if (!this.automaticRunoffResult.isEmpty()) {
-                orderedSet.addAll(this.automaticRunoffResult.entrySet());
-            }
-        }
-        return orderedSet;
+        // 4. Sort the results and get the first one
+        this.sortedRunoffResults = new TreeSet<>(runoffComparator);
+        this.sortedRunoffResults.addAll(automaticRunoffResult.entrySet());
+        return this.sortedRunoffResults.first().getKey();
     }
 
     /**
@@ -197,16 +152,30 @@ public class NationalElection {
         return winner;
     }
 
-    /**
-     * Given the scores of each party, returns the limit amount of candidates that have the specified score
-     * @return Winning party
+    /* Methods from below will only be called once the elections are closed and therefore, the national
+     * results already calculated. Since threads will only be reading, there is no need to synchronize
      */
-    private List<Party> retrievePartyWithScore(Map<Party, Long> partyScore, final long score, final int limit) {
-        List<Party> matchingCandidates = partyScore.entrySet().stream().filter(e -> e.getValue() == score).map(Map.Entry::getKey).collect(Collectors.toList());
 
-        if (matchingCandidates.size() > 1) {
-            matchingCandidates = matchingCandidates.stream().sorted(Comparator.comparing(Party::getDescription)).limit(limit).collect(Collectors.toList());
-        }
-        return matchingCandidates;
+    /**
+     * Returns the national election winner.
+     * @return The party winner of the elections
+     */
+    public Party getNationalElectionWinner() {
+        return winner;
+    }
+
+    /**
+     * Once elections has been run, this method orders the results of the scoring round
+     * @return List of map entries of the scoring round results
+     */
+    public TreeSet<Map.Entry<Party, Long>> getSortedScoringRoundResults() {
+        return this.sortedScoringResults;
+    }
+    /**
+     * Once elections has been run, this method orders the results of the automatic runoff
+     * @return List of map entries of the runoff results
+     */
+    public TreeSet<Map.Entry<Party, Double>> getSortedAutomaticRunoffResults() {
+        return this.sortedRunoffResults;
     }
 }

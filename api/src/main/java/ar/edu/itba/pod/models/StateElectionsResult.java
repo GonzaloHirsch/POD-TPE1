@@ -6,6 +6,8 @@ import java.util.Map;
 import java.util.TreeSet;
 
 public class StateElectionsResult implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private final Province province;
     private final TreeSet<Map.Entry<Party, Double>> firstRound;
     private final TreeSet<Map.Entry<Party, Double>> secondRound;
