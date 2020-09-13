@@ -107,7 +107,7 @@ public class QueryClient {
         write(clientArguments.getOutPutPath(), outputString.toString());
     }
 
-    private static void nationalQuery(ElectionResults nationalResults, QueryClientArguments clientArguments) {
+    public static void nationalQuery(ElectionResults nationalResults, QueryClientArguments clientArguments) {
         TreeSet<Map.Entry<Party,Double>> automaticRunoff    = nationalResults.getNationalElectionsResult().getAutomaticRunoffResults();
         TreeSet<Map.Entry<Party,Long>> scoringRound         = nationalResults.getNationalElectionsResult().getScoringRoundResults();
         Party winner                                        = nationalResults.getNationalElectionsResult().getWinner();

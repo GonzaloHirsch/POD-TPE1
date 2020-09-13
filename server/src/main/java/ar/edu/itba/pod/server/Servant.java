@@ -115,11 +115,13 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     
     public void emitVote(Vote vote) throws RemoteException, ExecutionException, InterruptedException, InvalidElectionStateException {
         // Synchronize the access to the election state
+        System.out.println("emitVote executed");
         synchronized (this.STATE_LOCK){
             if (this.electionState != ElectionState.OPEN){
                 throw new InvalidElectionStateException("Elections haven't started or have already finished");
             }
         }
+        System.out.println("1");
 
         // Synchronize access to see if the key exists, perform the emission out of synchronized block
         synchronized (this.tables){
@@ -127,6 +129,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                 this.tables.put(vote.getTable(), new Table(vote.getTable(),vote.getProvince()));
             }
         }
+        System.out.println("2");
 
         // Emit the vote for the table
         this.tables.get(vote.getTable()).emitVote(vote.getFptpVote());
@@ -139,6 +142,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
         // Notify the vote
         this.notifyPartyVote(vote);
+        System.out.println("3");
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -148,23 +152,27 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     @Override
     public ElectionResults getNationalResults() throws RemoteException, InvalidElectionStateException {
         ElectionState electionState;
-
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
         synchronized (this.STATE_LOCK) {
-            electionState = ElectionState.fromValue(this.electionState.getDescription());
+            electionState = this.electionState;
         }
 
         if(electionState == ElectionState.OPEN) {
             return this.getAllTableResults();
 
         } else if(electionState == ElectionState.CLOSED){
+            System.out.println("Closed elections");
             Party winner = nationalElection.getNationalElectionWinner();
+            System.out.println(winner.getDescription());
             NationalElectionsResult nationalResults = new NationalElectionsResult(
                     nationalElection.getOrderedScoringRoundResults(),
                     nationalElection.getOrderedAutomaticRunoffResults(),
                     winner
             );
-            return new ElectionResults(nationalResults);
+            System.out.println("creating election results");
+            ElectionResults electionResults = new ElectionResults(nationalResults);
+            System.out.println("Returning election results");
+            return electionResults;
         }
 
         // Elections have not began

@@ -2,6 +2,7 @@ package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.models.Party;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -92,10 +93,10 @@ public class NationalElection {
      */
     private Party automaticRunoff(final List<Party> winners) {
 
-        if (winners.size() != 2) {
+        /*if (winners.size() != 2) {
             System.out.println("Must be two winners from the scoring round");
             return null;
-        }
+        }*/
         // 1. Filter ballots whose winning candidate score is equal to 0
         List<Map<Party, Long>> filteredBallots = this.ballots.stream()
                 .filter(b -> validBallotForRunoff(b, winners))

@@ -1,5 +1,6 @@
 package ar.edu.itba.pod.models;
 
+import java.io.Serializable;
 import java.util.Optional;
 
 public enum ElectionState {
