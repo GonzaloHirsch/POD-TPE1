@@ -72,17 +72,17 @@ public class QueryClient {
         List<Party> winners = stateElectionsResult.getWinners();
 
         String outputString = "Round 1\nApproval;Party" +
-                getStringFromTreeSet(firstRound) +
+                getStringFromDoubleTreeSet(firstRound) +
                 "\nWinners\n" + winners.stream().findFirst() + "\nRound 2\nApproval;Party" +
-                getStringFromTreeSet(secondRound) +
+                getStringFromDoubleTreeSet(secondRound) +
                 "\nWinners\n" + winners.stream().findFirst() + ", " + winners.get(1) + "\nRound 3\nApproval;Party" +
-                getStringFromTreeSet(thirdRound) +
+                getStringFromDoubleTreeSet(thirdRound) +
                 "\nWinners\n" + winners.stream().findFirst() + ", " + winners.get(1) + ", " + winners.get(2);
         write(clientArguments.getOutPutPath(), outputString);
     }
-    private static String getStringFromTreeSet(TreeSet<Map.Entry<Party,Double>> round){
+    private static String getStringFromDoubleTreeSet(TreeSet<Map.Entry<Party,Double>> set){
         StringBuilder sb = new StringBuilder();
-        for(Map.Entry<Party, Double> pair : round){
+        for(Map.Entry<Party, Double> pair : set){
             if(pair.getValue()!=null){
                 sb.append("\n");
                 sb.append(pair.getValue()).append(";").append(pair.getKey());
@@ -96,10 +96,7 @@ public class QueryClient {
 
         StringBuilder outputString = new StringBuilder();
         outputString.append("Percentage;Party");
-        for(Map.Entry<Party, Double> pair : ftptResults){
-            outputString.append("\n");
-            outputString.append(pair.getValue()).append(";").append(pair.getKey());
-        }
+        outputString.append(getStringFromDoubleTreeSet(ftptResults));
 
         if(showWinner){
             outputString.append("\nWinner\n").append(results.getFptpResult().first().getKey());
@@ -113,17 +110,19 @@ public class QueryClient {
         Party winner                                        = nationalResults.getNationalElectionsResult().getWinner();
 
         StringBuilder outputString = new StringBuilder();
+
+        // Scoring results
         outputString.append("Score;Party");
         for(Map.Entry<Party, Long> pair : scoringRound){
             outputString.append("\n");
             outputString.append(pair.getValue()).append(";").append(pair.getKey());
         }
 
+        // Automatic runoff results
         outputString.append("\nPercentage;Party");
-        for(Map.Entry<Party, Double> pair : automaticRunoff){
-            outputString.append("\n");
-            outputString.append(pair.getValue()).append(";").append(pair.getKey());
-        }
+        outputString.append(getStringFromDoubleTreeSet(automaticRunoff));
+
+        // National election winner
         outputString.append("\nWinner\n").append(winner);
 
         write(clientArguments.getOutPutPath(), outputString.toString());
