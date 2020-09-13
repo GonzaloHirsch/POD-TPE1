@@ -126,7 +126,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     this.tables.put(vote.getTable(), new Table(vote.getTable(), vote.getProvince()));
                 }
             }
-            
+
             // Emit the vote for the table
             this.tables.get(vote.getTable()).emitVote(vote.getFptpVote());
 

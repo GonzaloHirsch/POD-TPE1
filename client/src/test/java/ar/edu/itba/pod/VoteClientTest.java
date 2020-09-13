@@ -50,7 +50,9 @@ public class VoteClientTest {
     public void testVoteClient(){
         try {
             // Parsing the file
+            //List<Vote> votes = parseInputFile("/home/fpetrikovich/Programacion/POD/POD-TPE1/examples/votes.csv");
             List<Vote> votes = parseInputFile("/Users/gastonlifschitz/ITBA/POD/POD-TPE1/examples/votes.csv");
+
             final ManagementService managementService = (ManagementService) Naming.lookup("//127.0.0.1:1099/" + ManagementService.class.getName());
 
             managementService.openElection();

@@ -59,7 +59,7 @@ public class VoteClient {
                 // Emitting votes
                 emitAllVotes(service, votes);
 
-                System.out.println(String.format("{} votes registered", votes.size()));
+                System.out.println(votes.size() + " votes registered");
             } catch (IOException e) {
                 System.out.println("ERROR: Invalid file given");
             }

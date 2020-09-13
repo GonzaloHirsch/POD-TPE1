@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NationalElection {
+public class NationalElection implements Serializable {
     /**
      * List to hold all the votes in order to be able to perform the automatic runoff
      */

@@ -37,30 +37,24 @@ public class QueryClient {
 
         final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + QueryService.class.getName());
 
-        if(clientArguments.getProvinceName().equals("") && clientArguments.getTableID() == null){
-            try {
+        try {
+            if (clientArguments.getProvinceName().equals("") && clientArguments.getTableID() == null) {
                 ElectionResults results = service.getNationalResults();
-                if(results.getVotingType()== VotingType.NATIONAL)
-                    nationalQuery(results,clientArguments);
-                else
+                if (results.getVotingType() == VotingType.NATIONAL) {
+                    nationalQuery(results, clientArguments);
+                } else {
                     ftptQuery(results, clientArguments, false);
-            } catch (InvalidElectionStateException e) {
-                e.printStackTrace();
-            }
-        }else if(clientArguments.getTableID() != null){
-            try {
+                }
+            } else if (clientArguments.getTableID() != null) {
                 ElectionResults tableResults = service.getTableResults(clientArguments.getTableID());
-                ftptQuery(tableResults,clientArguments,true);
-            } catch (InvalidElectionStateException e) {
-                e.printStackTrace();
-            }
-        }else{
-            try {
+                ftptQuery(tableResults, clientArguments, true);
+            } else {
                 ElectionResults stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
-                stateQuery(stateResults,clientArguments);
-            } catch (InvalidElectionStateException e) {
-                e.printStackTrace();
+                stateQuery(stateResults, clientArguments);
             }
+        } catch (InvalidElectionStateException e) {
+            e.printStackTrace();
+            // FIXME remove this print Stack Trace
         }
     }
 
