@@ -7,7 +7,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
 
-public class VoteHelper {
+public class VotesFileGenerator {
     private static final String prefix = "votes";
     private static final String extension = ".csv";
     private static final String outputPath = "examples/";
@@ -27,9 +27,30 @@ public class VoteHelper {
     private static final int votesFileQuantity = 5;
 
     /**
+     * Generates a new file with quantity votes
+     * @param name for new file (MUST NOT include extension)
+     * @param quantity how many votes will be in the file
+     */
+    public static void generateVotesFile(String name, int quantity) {
+        generateTablesPerProvince();
+        for(int i=0; i<votesFileQuantity; i++) {
+            try {
+                FileWriter f = new FileWriter(outputPath + name + extension, false);
+                for(int j=0; j<quantity; j++){
+                    f.write(getRandomVoteLine());
+                    if(j < quantity-1) f.write(newLine);
+                }
+                f.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
      * Generates votesFileQuantity files with votesQuantity votes in examples/
      */
-    public static void generateRandomVoteFiles() {
+    public static void generateRandomVotesFiles() {
         generateTablesPerProvince();
         for(int i=0; i<votesFileQuantity; i++) {
             try {
