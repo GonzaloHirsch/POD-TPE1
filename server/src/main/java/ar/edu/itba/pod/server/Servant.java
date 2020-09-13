@@ -97,7 +97,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                 throw new InvalidElectionStateException("Elections haven't started or have already finished");
             }
             this.nationalElection.computeNationalElectionResults();
-            // TODO compute provinceResults
+            this.stateElection.computeStateElectionResults();
             this.electionState = ElectionState.CLOSED;
         }
     }
@@ -181,10 +181,15 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
 
         if(electionState == ElectionState.OPEN) {
-
+            // TODO: @Marina, get fptp results per province
         } else if(electionState == ElectionState.CLOSED){
-
-        }
+            StateElectionsResult stateResults = new StateElectionsResult(province,
+                    stateElection.getFirstRound(province),
+                    stateElection.getSecondRound(province),
+                    stateElection.getThirdRound(province),
+                    stateElection.getWinners(province));
+            return new ElectionResults(stateResults);
+        };
 
         throw new InvalidElectionStateException("Elections PENDING. Can not request state results");
     }
