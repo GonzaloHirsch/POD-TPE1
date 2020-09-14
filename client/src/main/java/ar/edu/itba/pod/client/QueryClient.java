@@ -81,12 +81,13 @@ public class QueryClient {
                 "\nWinners\n" + winners[0] + ", " + winners[1] + ", " + winners[2];
         write(filename, outputString);
     }
-    private static String getStringFromDoubleTreeSet(TreeSet<MutablePair<Party, Double>> set, boolean includePercent){
+
+    private static String getStringFromDoubleTreeSet(TreeSet<MutablePair<Party, Double>> set, boolean includePercent) {
         StringBuilder sb = new StringBuilder();
         String percent = includePercent ? "%" : "";
 
         set.forEach(pair -> {
-            if(pair.getRight() != null && pair.getRight() != 0.0)
+            if (pair.getRight() != null && pair.getRight() > 0)
                 sb.append("\n").append(String.format("%.2f", pair.getValue())).append(percent).append(";").append(pair.getKey());
         });
         return sb.toString();
@@ -99,7 +100,7 @@ public class QueryClient {
         outputString.append("Percentage;Party");
         outputString.append(getStringFromDoubleTreeSet(fptpResult.getFptpResults(), true));
 
-        if(showWinner){
+        if (showWinner) {
             outputString.append("\nWinner\n").append(fptpResult.getWinner());
         }
         write(filename, outputString.toString());
@@ -116,7 +117,7 @@ public class QueryClient {
         // Scoring results
         outputString.append("Score;Party");
         scoringRound.forEach(pair -> {
-            if(pair.getRight()!=0)
+            if (pair.getRight() > 0)
                 outputString.append("\n").append(pair.getValue()).append(";").append(pair.getKey());
         });
         // Automatic runoff results
@@ -129,7 +130,7 @@ public class QueryClient {
         write(filename, outputString.toString());
     }
 
-    private static void write (String filename , String value) {
+    private static void write(String filename, String value) {
         try {
             FileWriter myWriter = new FileWriter(filename);
             myWriter.write(value);
