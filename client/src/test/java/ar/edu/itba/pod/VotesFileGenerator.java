@@ -26,6 +26,34 @@ public class VotesFileGenerator {
     private static final int votesQuantity = 30;
     private static final int votesFileQuantity = 5;
 
+    public static void main(String[] args) {
+        Scanner s = new Scanner(System.in);
+        int option = getInteger(s, "Votes File Generator\n" +
+                "This files will be generated in examples/ folder\nChoose:\n" +
+                "1. Generate one custom votes file\n2. Generate random votes files");
+        if(option == 1) {
+            String filename = getString(s, "Insert file name without extension");
+            int votesQuantity = getInteger(s, "Insert how many votes you want in your file");
+            generateVotesFile(filename, votesQuantity);
+        }
+        else if(option == 2) {
+            generateRandomVotesFiles();
+        }
+        else {
+            System.out.println("ERROR: Invalid Option");
+        }
+    }
+
+    public static String getString(Scanner s, String message) {
+        System.out.println(message);
+        return s.next();
+    }
+
+    public static int getInteger(Scanner s, String message) {
+        System.out.println(message);
+        return s.nextInt();
+    }
+
     /**
      * Generates a new file with quantity votes
      * @param name for new file (MUST NOT include extension)
@@ -42,7 +70,7 @@ public class VotesFileGenerator {
                 }
                 f.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
     }
@@ -61,7 +89,7 @@ public class VotesFileGenerator {
                 }
                 f.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                System.out.println(e.getMessage());
             }
         }
     }
