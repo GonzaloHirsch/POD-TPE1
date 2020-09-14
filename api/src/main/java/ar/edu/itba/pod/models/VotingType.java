@@ -1,7 +1,5 @@
 package ar.edu.itba.pod.models;
 
-import java.io.Serializable;
-
-public enum VotingType implements Serializable {
+public enum VotingType  {
     FPTP, STATE, NATIONAL
 }

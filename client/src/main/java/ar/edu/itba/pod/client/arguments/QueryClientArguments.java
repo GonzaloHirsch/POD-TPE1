@@ -14,7 +14,6 @@ public class QueryClientArguments {
     private static final String OUT_PATH = "outPath";
     private static final String SERVER_ADDRESS_KEY = "serverAddress";
 
-
     public String getServerAddress() {
         return serverAddress;
     }

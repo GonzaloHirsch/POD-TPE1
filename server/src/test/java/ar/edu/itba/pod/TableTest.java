@@ -3,6 +3,7 @@ package ar.edu.itba.pod;
 import ar.edu.itba.pod.models.Party;
 import ar.edu.itba.pod.models.Province;
 import ar.edu.itba.pod.server.models.Table;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -38,7 +39,7 @@ public class TableTest {
             totalVotes+=votes;
         }
 
-        TreeSet<Map.Entry<Party, Double>> results = table.getResultsFromTable();
+        TreeSet<MutablePair<Party, Double>> results = table.getResultsFromTable();
         double finalTotalVotes = totalVotes;
         results.forEach(e->{
             assertEquals(new Double(votesPerParty.get(e.getKey())/ finalTotalVotes), e.getValue());

@@ -1,21 +1,25 @@
 package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.*;
+import ar.edu.itba.pod.comparators.DoubleComparator;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.models.*;
 import ar.edu.itba.pod.server.models.NationalElection;
 import ar.edu.itba.pod.server.models.StateElection;
 import ar.edu.itba.pod.server.models.Table;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
 
-public class Servant implements AuditService, ManagementService, VoteService, QueryService {
+public class Servant implements AuditService, ManagementService, VoteService, QueryService, Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(Servant.class);
+    private static final long serialVersionUID = -2300255720754879234L;
 
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
     private final HashMap<Integer, Table> tables = new HashMap<>();
@@ -30,13 +34,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
 
     // Will compare first with percentage and then the party
-    private final static Comparator<Map.Entry<Party, Double>> fptpComparator = (e1, e2) -> {
-        int valueComparison = e2.getValue().compareTo(e1.getValue());
-        if (valueComparison == 0) {
-            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-        }
-        return valueComparison;
-    };
+    private final DoubleComparator doubleComparator = new DoubleComparator();
 
     //////////////////////////////////////////////////////////////////////////////////////////
     //                                      AUDIT METHODS
@@ -143,23 +141,21 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     @Override
     public ElectionResults getNationalResults() throws RemoteException, InvalidElectionStateException {
         ElectionState electionState;
-
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
         synchronized (this.STATE_LOCK) {
-            electionState = this.electionState;
+            electionState = ElectionState.fromValue(this.electionState.name());
         }
 
         if(electionState == ElectionState.OPEN) {
             return this.getAllTableResults();
 
-        } else if(electionState == ElectionState.CLOSED){
-            Party winner = nationalElection.getNationalElectionWinner();
-            NationalElectionsResult nationalResults = new NationalElectionsResult(
-                    nationalElection.getSortedScoringRoundResults(),
-                    nationalElection.getSortedAutomaticRunoffResults(),
+        } else if(electionState == ElectionState.CLOSED) {
+            Party winner = this.nationalElection.getNationalElectionWinner();
+            return new NationalElectionsResult(
+                    this.nationalElection.getSortedScoringRoundResults(),
+                    this.nationalElection.getSortedAutomaticRunoffResults(),
                     winner
             );
-            return new ElectionResults(nationalResults);
         }
 
         // Elections have not began
@@ -172,20 +168,19 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
         synchronized (this.STATE_LOCK) {
-            electionState = ElectionState.fromValue(this.electionState.getDescription());
+            electionState = ElectionState.fromValue(this.electionState.name());
         }
 
         if(electionState == ElectionState.OPEN) {
             return this.getProvinceTableResults(province);
         }
         else if(electionState == ElectionState.CLOSED){
-            StateElectionsResult stateResults = new StateElectionsResult(province,
-                    stateElection.getFirstRound(province),
-                    stateElection.getSecondRound(province),
-                    stateElection.getThirdRound(province),
-                    stateElection.getWinners(province));
-            return new ElectionResults(stateResults);
-        };
+            return new StateElectionsResult(province,
+                    this.stateElection.getFirstRound(province),
+                    this.stateElection.getSecondRound(province),
+                    this.stateElection.getThirdRound(province),
+                    this.stateElection.getWinners(province));
+        }
 
         throw new InvalidElectionStateException("Elections PENDING. Can not request state results");
     }
@@ -196,11 +191,15 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
         synchronized (this.STATE_LOCK) {
-            electionState = ElectionState.fromValue(this.electionState.getDescription());
+            electionState = ElectionState.fromValue(this.electionState.name());
+        }
+
+        if (!this.tables.containsKey(tableID)) {
+            throw new IllegalArgumentException("Table with id " + tableID + " does not exist.\n");
         }
 
         if(electionState != ElectionState.PENDING){
-            return new ElectionResults(tables.get(tableID).getResultsFromTable());
+            return new FPTPResult(tables.get(tableID).getResultsFromTable());
         }
         throw new InvalidElectionStateException("Elections PENDING. Can not request FPTP results");
     }
@@ -233,9 +232,9 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     private ElectionResults newElectionResults(Map<Party, Long> fptpVotes) {
         double totalVotes = (double) fptpVotes.values().stream().reduce(0L, Long::sum);
 
-        TreeSet<Map.Entry<Party, Double>> fptpResult = new TreeSet<>(fptpComparator);
-        fptpVotes.forEach((key, value) -> fptpResult.add(new AbstractMap.SimpleEntry<>(key, (double) value / totalVotes)));
+        TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(doubleComparator);
+        fptpVotes.forEach((key, value) -> fptpResult.add(new MutablePair<>(key, (double) value / totalVotes)));
 
-        return new ElectionResults(fptpResult);
+        return new FPTPResult(fptpResult);
     }
 }

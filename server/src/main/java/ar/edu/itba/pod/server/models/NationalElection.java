@@ -1,36 +1,28 @@
 package ar.edu.itba.pod.server.models;
 
+import ar.edu.itba.pod.comparators.DoubleComparator;
+import ar.edu.itba.pod.comparators.LongComparator;
 import ar.edu.itba.pod.models.Party;
+import org.apache.commons.lang3.tuple.MutablePair;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NationalElection {
+public class NationalElection implements Serializable {
+    private static final long serialVersionUID = 3779368141238758571L;
     /**
      * List to hold all the votes in order to be able to perform the automatic runoff
      */
     private final List<Map<Party, Long>> ballots = new ArrayList<>();
 
     // Comparators
-    private static final Comparator<Map.Entry<Party, Long>> scoringComparator = (e1, e2) -> {
-        int valueComparison = e2.getValue().compareTo(e1.getValue());
-        if (valueComparison == 0) {
-            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-        }
-        return valueComparison;
-    };
-
-    private static final Comparator<Map.Entry<Party, Double>> runoffComparator = (e1, e2) -> {
-        int valueComparison = e2.getValue().compareTo(e1.getValue());
-        if (valueComparison == 0) {
-            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-        }
-        return valueComparison;
-    };
+    private final DoubleComparator doubleComparator = new DoubleComparator();
+    private final LongComparator longComparator = new LongComparator();
 
     // Sorted results
-    private TreeSet<Map.Entry<Party, Long>> sortedScoringResults;
-    private TreeSet<Map.Entry<Party, Double>> sortedRunoffResults;
+    private TreeSet<MutablePair<Party, Long>> sortedScoringResults = new TreeSet<>(longComparator);
+    private TreeSet<MutablePair<Party, Double>> sortedRunoffResults = new TreeSet<>(doubleComparator);
     private Party winner = null;
 
     public NationalElection() { }
@@ -47,8 +39,10 @@ public class NationalElection {
      * Will only be called ONCE and hence do not need to be synchronized
      */
     public void computeNationalElectionResults() {
-        List<Party> scoringRoundWinners = this.scoringRound();
-        winner = this.automaticRunoff(scoringRoundWinners);
+        if (this.ballots.size() > 0) {
+            List<Party> scoringRoundWinners = this.scoringRound();
+            winner = this.automaticRunoff(scoringRoundWinners);
+        }
     }
 
     /**
@@ -68,15 +62,11 @@ public class NationalElection {
             }
         }
 
-        this.sortedScoringResults = new TreeSet<>(scoringComparator);
-        this.sortedScoringResults.addAll(scoringRoundResults.entrySet());
+        this.sortedScoringResults = new TreeSet<>(longComparator);
+        this.sortedScoringResults.addAll(scoringRoundResults.entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue())).collect(Collectors.toList()));
 
         // Sorting the candidates and obtaining the two top ones
-        List<Party> winningCandidates = this.sortedScoringResults.stream().limit(2).map(Map.Entry::getKey).collect(Collectors.toList());
-        if (winningCandidates.size() != 2) {
-            throw new IllegalStateException("Scoring round has to have exactly 2 winners");
-        }
-        return winningCandidates;
+        return this.sortedScoringResults.stream().limit(2).map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
     /**
@@ -87,10 +77,10 @@ public class NationalElection {
     private Party automaticRunoff(final List<Party> winners) {
         final Map<Party, Double> automaticRunoffResult = new HashMap<>();
 
-        if (winners.size() != 2) {
+        /*if (winners.size() != 2) {
             System.out.println("Must be two winners from the scoring round");
             return null;
-        }
+        }*/
         // 1. Filter ballots whose winning candidate score is equal to 0
         List<Map<Party, Long>> filteredBallots = this.ballots.stream()
                 .filter(b -> validBallotForRunoff(b, winners))
@@ -108,8 +98,8 @@ public class NationalElection {
         });
 
         // 4. Sort the results and get the first one
-        this.sortedRunoffResults = new TreeSet<>(runoffComparator);
-        this.sortedRunoffResults.addAll(automaticRunoffResult.entrySet());
+        this.sortedRunoffResults = new TreeSet<>(doubleComparator);
+        this.sortedRunoffResults.addAll(automaticRunoffResult.entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue())).collect(Collectors.toList()));
         return this.sortedRunoffResults.first().getKey();
     }
 
@@ -167,14 +157,15 @@ public class NationalElection {
      * Once elections has been run, this method orders the results of the scoring round
      * @return List of map entries of the scoring round results
      */
-    public TreeSet<Map.Entry<Party, Long>> getSortedScoringRoundResults() {
+    public TreeSet<MutablePair<Party, Long>> getSortedScoringRoundResults() {
         return this.sortedScoringResults;
     }
+    
     /**
      * Once elections has been run, this method orders the results of the automatic runoff
      * @return List of map entries of the runoff results
      */
-    public TreeSet<Map.Entry<Party, Double>> getSortedAutomaticRunoffResults() {
+    public TreeSet<MutablePair<Party, Double>> getSortedAutomaticRunoffResults() {
         return this.sortedRunoffResults;
     }
 }
