@@ -72,14 +72,21 @@ public class VoteClientTest {
         }
     }
     private static void nationalQuery(ElectionResults results) {
-        TreeSet<MutablePair<Party, Double>> ftptResults = ((FPTPResult) results).getFptpResults();
+        TreeSet<MutablePair<Party, Long>> scoring = ((NationalElectionsResult) results).getScoringRoundResults();
+        TreeSet<MutablePair<Party, Double>> automatic = ((NationalElectionsResult) results).getAutomaticRunoffResults();
 
         StringBuilder outputString = new StringBuilder();
-        outputString.append("Percentage;Party");
-        for(Map.Entry<Party, Double> pair : ftptResults){
+        outputString.append("Score;Party");
+        for(Map.Entry<Party, Long> pair : scoring){
             outputString.append("\n");
             outputString.append(pair.getValue()).append(";").append(pair.getKey());
         }
+        outputString.append("\nPercentage;Party");
+        for(Map.Entry<Party, Double> pair : automatic){
+            outputString.append("\n");
+            outputString.append(pair.getValue()).append(";").append(pair.getKey());
+        }
+        outputString.append("\nWinner\n").append(((NationalElectionsResult) results).getWinner());
         System.out.println(outputString);
     }
     /**
