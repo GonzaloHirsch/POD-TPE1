@@ -37,8 +37,15 @@ public class QueryClient {
 
         final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + QueryService.class.getName());
 
+        System.out.println("Before client argument");
+        System.out.println("Address: " + clientArguments.getServerAddress());
+        System.out.println("File: " + clientArguments.getOutPutPath());
+        System.out.println("Province: " + clientArguments.getProvinceName());
+        System.out.println("Table: " + clientArguments.getTableID());
+        System.out.println("Service: " + service);
+
         try {
-            if (clientArguments.getProvinceName().equals("") && clientArguments.getTableID() == null) {
+            if (clientArguments.getProvinceName() == null && clientArguments.getTableID() == null) {
                 ElectionResults results = service.getNationalResults();
                 if (results.getVotingType() == VotingType.NATIONAL) {
                     nationalQuery(results, clientArguments);
@@ -53,8 +60,7 @@ public class QueryClient {
                 stateQuery(stateResults, clientArguments);
             }
         } catch (InvalidElectionStateException e) {
-            e.printStackTrace();
-            // FIXME remove this print Stack Trace
+            System.out.println(e.getMessage());
         }
     }
 

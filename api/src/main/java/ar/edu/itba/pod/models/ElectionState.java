@@ -19,7 +19,7 @@ public enum ElectionState {
     public static ElectionState fromValue(String s) throws RuntimeException {
         String value = Optional.ofNullable(s).orElseThrow(RuntimeException::new).toUpperCase();
         for (ElectionState state : ElectionState.values()){
-            if (value.equals(state.description)){
+            if (value.equals(state.name())){
                 return state;
             }
         }
