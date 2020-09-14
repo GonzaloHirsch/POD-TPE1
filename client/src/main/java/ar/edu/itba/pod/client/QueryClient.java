@@ -4,6 +4,7 @@ import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.client.arguments.QueryClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.models.*;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -68,9 +69,9 @@ public class QueryClient {
 
     private static void stateQuery(ElectionResults stateResults, QueryClientArguments clientArguments) {
         StateElectionsResult stateElectionsResult = (StateElectionsResult) stateResults;
-        TreeSet<Map.Entry<Party,Double>> firstRound = stateElectionsResult.getFirstRound();
-        TreeSet<Map.Entry<Party,Double>> secondRound = stateElectionsResult.getSecondRound();
-        TreeSet<Map.Entry<Party,Double>> thirdRound = stateElectionsResult.getThirdRound();
+        TreeSet<MutablePair<Party, Double>> firstRound = stateElectionsResult.getFirstRound();
+        TreeSet<MutablePair<Party, Double>> secondRound = stateElectionsResult.getSecondRound();
+        TreeSet<MutablePair<Party, Double>> thirdRound = stateElectionsResult.getThirdRound();
         List<Party> winners = stateElectionsResult.getWinners();
 
         String outputString = "Round 1\nApproval;Party" +
@@ -82,7 +83,7 @@ public class QueryClient {
                 "\nWinners\n" + winners.stream().findFirst() + ", " + winners.get(1) + ", " + winners.get(2);
         write(clientArguments.getOutPutPath(), outputString);
     }
-    private static String getStringFromDoubleTreeSet(TreeSet<Map.Entry<Party,Double>> set){
+    private static String getStringFromDoubleTreeSet(TreeSet<MutablePair<Party, Double>> set){
         StringBuilder sb = new StringBuilder();
         for(Map.Entry<Party, Double> pair : set){
             if(pair.getValue()!=null){
@@ -108,15 +109,15 @@ public class QueryClient {
 
     public static void nationalQuery(ElectionResults results, QueryClientArguments clientArguments) {
         NationalElectionsResult nationalResults = (NationalElectionsResult) results;
-        TreeSet<Map.Entry<Party,Long>> scoringRound         = nationalResults.getScoringRoundResults();
-        TreeSet<Map.Entry<Party,Double>> automaticRunoff    = nationalResults.getAutomaticRunoffResults();
-        Party winner                                        = nationalResults.getWinner();
+        TreeSet<MutablePair<Party, Long>> scoringRound = nationalResults.getScoringRoundResults();
+        TreeSet<MutablePair<Party, Double>> automaticRunoff = nationalResults.getAutomaticRunoffResults();
+        Party winner = nationalResults.getWinner();
 
         StringBuilder outputString = new StringBuilder();
 
         // Scoring results
         outputString.append("Score;Party");
-        for(Map.Entry<Party, Long> pair : scoringRound){
+        for(MutablePair<Party, Long> pair : scoringRound){
             outputString.append("\n");
             outputString.append(pair.getValue()).append(";").append(pair.getKey());
         }
