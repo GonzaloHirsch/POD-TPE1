@@ -48,8 +48,8 @@ public class VoteClientTest {
     public void testVoteClient(){
         try {
             // Parsing the file
-            List<Vote> votes = parseInputFile("/home/fpetrikovich/Programacion/POD/POD-TPE1/examples/votes.csv");
-//            List<Vote> votes = parseInputFile("/Users/gastonlifschitz/ITBA/POD/POD-TPE1/examples/votes.csv");
+            //            List<Vote> votes = parseInputFile("/home/fpetrikovich/Programacion/POD/POD-TPE1/examples/votes.csv");
+            List<Vote> votes = parseInputFile("/Users/gastonlifschitz/ITBA/POD/POD-TPE1/examples/votes.csv");
 
             final ManagementService managementService = (ManagementService) Naming.lookup("//127.0.0.1:1099/" + ManagementService.class.getName());
 
@@ -66,6 +66,10 @@ public class VoteClientTest {
 
             ElectionResults electionResults = service.getNationalResults();
             nationalQuery(electionResults);
+
+            stateQuery(service.getProvinceResults(Province.JUNGLE), null);
+            stateQuery(service.getProvinceResults(Province.SAVANNAH), null);
+            stateQuery(service.getProvinceResults(Province.TUNDRA), null);
 
         } catch (IOException | NotBoundException | InvalidElectionStateException e) {
             System.out.println("ERROR: Invalid file given " + e.getMessage());
@@ -102,12 +106,20 @@ public class VoteClientTest {
         // Automatic runoff results
         outputString.append("\nPercentage;Party");
         outputString.append(getStringFromDoubleTreeSet(automaticRunoff, true));
-
         // National election winner
         outputString.append("\nWinner\n").append(winner);
         System.out.println(outputString);
     }
-
+    private static String getStringFromDoubleTreeSet(TreeSet<MutablePair<Party, Double>> set){
+        StringBuilder sb = new StringBuilder();
+        for(Map.Entry<Party, Double> pair : set){
+            if(pair.getValue()!=null){
+                sb.append("\n");
+                sb.append(pair.getValue()).append(";").append(pair.getKey());
+            }
+        }
+        return sb.toString();
+    }
     /**
      * Parses the given file and generates the votes
      * @param path Path to the file
@@ -177,6 +189,24 @@ public class VoteClientTest {
         }
 
         return votes;
+    }
+
+    private static void stateQuery(ElectionResults stateResults, QueryClientArguments clientArguments) {
+        StateElectionsResult stateElectionsResult = (StateElectionsResult) stateResults;
+        TreeSet<MutablePair<Party, Double>> firstRound = stateElectionsResult.getFirstRound();
+        TreeSet<MutablePair<Party, Double>> secondRound = stateElectionsResult.getSecondRound();
+        TreeSet<MutablePair<Party, Double>> thirdRound = stateElectionsResult.getThirdRound();
+        Party[] winners = stateElectionsResult.getWinners();
+
+        String outputString = "Round 1\nApproval;Party" +
+                getStringFromDoubleTreeSet(firstRound) +
+                "\nWinners\n" + winners[0] + "\nRound 2\nApproval;Party" +
+                getStringFromDoubleTreeSet(secondRound) +
+                "\nWinners\n" + winners[0] + ", " + winners[1] + "\nRound 3\nApproval;Party" +
+                getStringFromDoubleTreeSet(thirdRound) +
+                "\nWinners\n" + winners[0] + ", " + winners[1] + ", " + winners[2];
+
+        System.out.println(outputString);
     }
 
     private static void emitAllVotes(VoteService service, List<Vote> votes){
