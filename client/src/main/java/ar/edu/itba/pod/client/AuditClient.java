@@ -18,7 +18,7 @@ import java.rmi.server.UnicastRemoteObject;
 public class AuditClient {
     private static final Logger LOG = LoggerFactory.getLogger(AuditClient.class);
 
-    public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException, InterruptedException {
+    public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException, InterruptedException, InvalidElectionStateException {
         AuditClientArguments clientArguments = new AuditClientArguments();
 
         // Parsing the arguments

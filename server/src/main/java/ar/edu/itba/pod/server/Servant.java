@@ -157,11 +157,11 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         if(electionState == ElectionState.OPEN) {
             return this.getAllTableResults();
 
-        } else if(electionState == ElectionState.CLOSED){
-            Party winner = nationalElection.getNationalElectionWinner();
+        } else if(electionState == ElectionState.CLOSED) {
+            Party winner = this.nationalElection.getNationalElectionWinner();
             return new NationalElectionsResult(
-                    nationalElection.getSortedScoringRoundResults(),
-                    nationalElection.getSortedAutomaticRunoffResults(),
+                    this.nationalElection.getSortedScoringRoundResults(),
+                    this.nationalElection.getSortedAutomaticRunoffResults(),
                     winner
             );
         }
@@ -184,10 +184,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
         else if(electionState == ElectionState.CLOSED){
             return new StateElectionsResult(province,
-                    stateElection.getFirstRound(province),
-                    stateElection.getSecondRound(province),
-                    stateElection.getThirdRound(province),
-                    stateElection.getWinners(province));
+                    this.stateElection.getFirstRound(province),
+                    this.stateElection.getSecondRound(province),
+                    this.stateElection.getThirdRound(province),
+                    this.stateElection.getWinners(province));
         }
 
         throw new InvalidElectionStateException("Elections PENDING. Can not request state results");

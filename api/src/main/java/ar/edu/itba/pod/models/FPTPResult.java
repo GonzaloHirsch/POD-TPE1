@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 public class FPTPResult extends ElectionResults {
+    private static final long serialVersionUID = -2379609868942776490L;
 
     private TreeSet<Map.Entry<Party, Double>> fptpResults;
 
@@ -18,5 +19,10 @@ public class FPTPResult extends ElectionResults {
 
     public Party getWinner() {
         return fptpResults.first().getKey();
+    }
+
+    @Override
+    public String toString() {
+        return this.fptpResults.toString();
     }
 }
