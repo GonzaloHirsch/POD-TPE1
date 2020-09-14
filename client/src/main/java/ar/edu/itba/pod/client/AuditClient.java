@@ -17,26 +17,33 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class AuditClient {
     public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException, InterruptedException, InvalidElectionStateException {
-        AuditClientArguments clientArguments = new AuditClientArguments();
-
-        // Parsing the arguments
         try {
-            clientArguments.parseArguments();
-        } catch (InvalidArgumentsException e) {
-            System.out.println(e.getMessage());
+            AuditClientArguments clientArguments = new AuditClientArguments();
+
+            // Parsing the arguments
+            try {
+                clientArguments.parseArguments();
+            } catch (InvalidArgumentsException e) {
+                System.out.println(e.getMessage());
+            }
+
+            final AuditService service = (AuditService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + AuditService.class.getName());
+
+            PartyVoteHandler handler = new PartyVoteHandlerImpl();
+
+            UnicastRemoteObject.exportObject(handler, 0);
+
+            registerAuditOfficerThread(service, clientArguments.getParty(), clientArguments.getTableID(), handler);
+        } catch (RemoteException re) {
+            System.out.println("ERROR: Exception in the remote server");
+        } catch (NotBoundException nbe) {
+            System.out.println("ERROR: Service not bound");
+        } catch (MalformedURLException me) {
+            System.out.println("ERROR: Malformed URL");
         }
-
-        final AuditService service = (AuditService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + AuditService.class.getName());
-
-        PartyVoteHandler handler = new PartyVoteHandlerImpl();
-
-        UnicastRemoteObject.exportObject(handler, 0);
-
-        registerAuditOfficerThread(service,  clientArguments.getParty(), clientArguments.getTableID(), handler);
-
     }
 
-    private static void registerAuditOfficerThread(AuditService service, Party party, int table, PartyVoteHandler handler){
+    private static void registerAuditOfficerThread(AuditService service, Party party, int table, PartyVoteHandler handler) {
         Runnable r = () -> {
             try {
                 service.registerAuditOfficer(party, table, handler);
