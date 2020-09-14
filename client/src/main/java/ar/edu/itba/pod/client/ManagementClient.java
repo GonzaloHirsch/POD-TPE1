@@ -14,7 +14,6 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 
 public class ManagementClient {
-    private static final Logger LOG = LoggerFactory.getLogger(ManagementClient.class);
 
     public static void main(final String[] args) {
         try {
@@ -31,7 +30,6 @@ public class ManagementClient {
             final ManagementService service = (ManagementService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + ManagementService.class.getName());
 
             // Performing actions depending on the given parameter action
-            // FIXME: DETERMINE IF THESE CALLS ARE DONE IN THREADS
             try {
                 switch (clientArguments.getAction()) {
                     case OPEN:
@@ -48,7 +46,7 @@ public class ManagementClient {
                         break;
                 }
             } catch (InvalidElectionStateException e) {
-                System.out.println("ERROR: Invalid state");
+                System.out.println("ERROR: Invalid election state");
             }
         } catch (RemoteException re){
             System.out.println("ERROR: Exception in the remote server");

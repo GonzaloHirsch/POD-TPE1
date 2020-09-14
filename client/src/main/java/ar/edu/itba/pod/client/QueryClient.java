@@ -14,15 +14,10 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.Map;
 import java.util.TreeSet;
 
 public class QueryClient {
-    private static final Logger LOG = LoggerFactory.getLogger(QueryClient.class);
-
     public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException {
-        LOG.info("QueryClient has started...");
-
         QueryClientArguments clientArguments = new QueryClientArguments();
 
         // Parsing the arguments
