@@ -59,7 +59,7 @@ public class QueryClient {
                 ElectionResults stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
                 stateQuery(stateResults, clientArguments);
             }
-        } catch (InvalidElectionStateException e) {
+        } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }

@@ -208,6 +208,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             electionState = ElectionState.fromValue(this.electionState.name());
         }
 
+        if (!this.tables.containsKey(tableID)) {
+            throw new IllegalArgumentException("Table with id " + tableID + " does not exist.\n");
+        }
+
         if(electionState != ElectionState.PENDING){
             return new ElectionResults(tables.get(tableID).getResultsFromTable());
         }
