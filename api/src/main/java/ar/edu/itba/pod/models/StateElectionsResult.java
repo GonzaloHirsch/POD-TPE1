@@ -13,10 +13,10 @@ public class StateElectionsResult extends ElectionResults{
     private final TreeSet<MutablePair<Party, Double>> secondRound;
     private final TreeSet<MutablePair<Party, Double>> thirdRound;
     // Winners are in order, index 0 -> first round winner, ...
-    private final List<Party> winners;
+    private final Party[] winners;
 
     public StateElectionsResult(Province province, TreeSet<MutablePair<Party, Double>> firstRound,
-                                TreeSet<MutablePair<Party, Double>> secondRound, TreeSet<MutablePair<Party, Double>> thirdRound, List<Party> winners) {
+                                TreeSet<MutablePair<Party, Double>> secondRound, TreeSet<MutablePair<Party, Double>> thirdRound, Party[] winners) {
         this.province = province;
         this.firstRound = firstRound;
         this.secondRound = secondRound;
@@ -41,7 +41,7 @@ public class StateElectionsResult extends ElectionResults{
         return thirdRound;
     }
 
-    public List<Party> getWinners() {
+    public Party[] getWinners() {
         return winners;
     }
 }

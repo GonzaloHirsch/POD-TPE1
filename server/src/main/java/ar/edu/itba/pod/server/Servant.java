@@ -6,6 +6,7 @@ import ar.edu.itba.pod.models.*;
 import ar.edu.itba.pod.server.models.NationalElection;
 import ar.edu.itba.pod.server.models.StateElection;
 import ar.edu.itba.pod.server.models.Table;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -240,8 +241,8 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     private ElectionResults newElectionResults(Map<Party, Long> fptpVotes) {
         double totalVotes = (double) fptpVotes.values().stream().reduce(0L, Long::sum);
 
-        TreeSet<Map.Entry<Party, Double>> fptpResult = new TreeSet<>(fptpComparator);
-        fptpVotes.forEach((key, value) -> fptpResult.add(new AbstractMap.SimpleEntry<>(key, (double) value / totalVotes)));
+        TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(fptpComparator);
+        fptpVotes.forEach((key, value) -> fptpResult.add(new MutablePair<>(key, (double) value / totalVotes)));
 
         return new FPTPResult(fptpResult);
     }

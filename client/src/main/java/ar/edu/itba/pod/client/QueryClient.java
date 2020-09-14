@@ -72,15 +72,15 @@ public class QueryClient {
         TreeSet<MutablePair<Party, Double>> firstRound = stateElectionsResult.getFirstRound();
         TreeSet<MutablePair<Party, Double>> secondRound = stateElectionsResult.getSecondRound();
         TreeSet<MutablePair<Party, Double>> thirdRound = stateElectionsResult.getThirdRound();
-        List<Party> winners = stateElectionsResult.getWinners();
+        Party[] winners = stateElectionsResult.getWinners();
 
         String outputString = "Round 1\nApproval;Party" +
                 getStringFromDoubleTreeSet(firstRound) +
-                "\nWinners\n" + winners.stream().findFirst() + "\nRound 2\nApproval;Party" +
+                "\nWinners\n" + winners[0] + "\nRound 2\nApproval;Party" +
                 getStringFromDoubleTreeSet(secondRound) +
-                "\nWinners\n" + winners.stream().findFirst() + ", " + winners.get(1) + "\nRound 3\nApproval;Party" +
+                "\nWinners\n" + winners[0] + ", " + winners[1] + "\nRound 3\nApproval;Party" +
                 getStringFromDoubleTreeSet(thirdRound) +
-                "\nWinners\n" + winners.stream().findFirst() + ", " + winners.get(1) + ", " + winners.get(2);
+                "\nWinners\n" + winners[0] + ", " + winners[1] + ", " + winners[2];
         write(clientArguments.getOutPutPath(), outputString);
     }
     private static String getStringFromDoubleTreeSet(TreeSet<MutablePair<Party, Double>> set){

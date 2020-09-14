@@ -2,8 +2,11 @@ package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.models.Party;
 import ar.edu.itba.pod.models.Province;
+import ar.edu.itba.pod.server.comparators.DoubleComparator;
+import org.apache.commons.lang3.tuple.MutablePair;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class StateElection {
     /**
@@ -16,13 +19,7 @@ public class StateElection {
     private List<Party> winners = new ArrayList<>();
 
     // Comparator
-    private static final Comparator<Map.Entry<Party, Double>> roundComparator = (e1, e2) -> {
-        int valueComparison = e2.getValue().compareTo(e1.getValue());
-        if (valueComparison == 0) {
-            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-        }
-        return valueComparison;
-    };
+    private static final DoubleComparator doubleComparator = new DoubleComparator();
 
     public StateElection() {
         Arrays.stream(Province.values()).forEach(p -> ballots.put(p, new ArrayList<>()));
@@ -94,11 +91,11 @@ public class StateElection {
      * @param round to compute a winner
      */
     private void computeWinner(Map<Party, Double> round) {
-        round.entrySet().stream()
+        round.entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue()))
                 // 1. Filters winners from previous rounds
                 .filter(e -> !winners.contains(e.getKey()))
                 // 2. From remaining, finds the winner
-                .min(roundComparator)
+                .min(doubleComparator)
                 // 3. Adds new winner for a specific round
                 .map(Map.Entry::getKey).ifPresent(p -> winners.add(p));
     }
@@ -150,8 +147,8 @@ public class StateElection {
      * @param province Province to get winners
      * @return List containing three winners, one per round
      */
-    public List<Party> getWinners(Province province) {
-        return winnersPerProvince.get(province);
+    public Party[] getWinners(Province province) {
+        return winnersPerProvince.get(province).toArray(new Party[]{});
     }
 
     /**
@@ -160,23 +157,23 @@ public class StateElection {
      * @param round Round for results
      * @return TreeSet containing Map entries with party and approval rate
      */
-    private TreeSet<Map.Entry<Party, Double>> getNthRound(Province province, Round round) {
-        TreeSet<Map.Entry<Party, Double>> orderedSet = new TreeSet<>(roundComparator);
+    private TreeSet<MutablePair<Party, Double>> getNthRound(Province province, Round round) {
+        TreeSet<MutablePair<Party, Double>> orderedSet = new TreeSet<>(doubleComparator);
         if(!results.get(province).get(round.getValue()).isEmpty()) {
-            orderedSet.addAll(results.get(province).get(round.getValue()).entrySet());
+            orderedSet.addAll(results.get(province).get(round.getValue()).entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue())).collect(Collectors.toList()));
         }
         return orderedSet;
     }
 
-    public TreeSet<Map.Entry<Party, Double>> getFirstRound(Province province) {
+    public TreeSet<MutablePair<Party, Double>> getFirstRound(Province province) {
         return getNthRound(province, Round.FIRST);
     }
 
-    public TreeSet<Map.Entry<Party, Double>> getSecondRound(Province province) {
+    public TreeSet<MutablePair<Party, Double>> getSecondRound(Province province) {
         return getNthRound(province, Round.SECOND);
     }
 
-    public TreeSet<Map.Entry<Party, Double>> getThirdRound(Province province) {
+    public TreeSet<MutablePair<Party, Double>> getThirdRound(Province province) {
         return getNthRound(province, Round.THIRD);
     }
 }

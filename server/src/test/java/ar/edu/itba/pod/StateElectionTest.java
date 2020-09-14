@@ -41,11 +41,11 @@ public class StateElectionTest {
 
     @Test
     public void testWinners() {
-        List<Party> winners = stateElection.getWinners(province);
-        assertEquals(Round.values().length, winners.size());
-        assertEquals(Party.TIGER, winners.get(Round.FIRST.getValue()));
-        assertEquals(Party.JACKALOPE, winners.get(Round.SECOND.getValue()));
-        assertEquals(Party.LEOPARD, winners.get(Round.THIRD.getValue()));
+        Party[] winners = stateElection.getWinners(province);
+        assertEquals(Round.values().length, winners.length);
+        assertEquals(Party.TIGER, winners[Round.FIRST.getValue()]);
+        assertEquals(Party.JACKALOPE, winners[Round.SECOND.getValue()]);
+        assertEquals(Party.LEOPARD, winners[Round.THIRD.getValue()]);
     }
 
     @Test
