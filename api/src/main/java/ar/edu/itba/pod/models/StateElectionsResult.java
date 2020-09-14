@@ -6,8 +6,6 @@ import java.util.TreeSet;
 
 public class StateElectionsResult extends ElectionResults{
     private static final long serialVersionUID = -3568878105168093744L;
-
-
     private final Province province;
     private final TreeSet<Map.Entry<Party, Double>> firstRound;
     private final TreeSet<Map.Entry<Party, Double>> secondRound;

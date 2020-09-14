@@ -5,7 +5,6 @@ import java.util.TreeSet;
 
 public class NationalElectionsResult extends ElectionResults {
     private static final long serialVersionUID = 3439625826120089417L;
-
     private TreeSet<Map.Entry<Party, Long>> scoringRoundResults;
     private TreeSet<Map.Entry<Party, Double>> automaticRunoffResults;
     private Party winner;

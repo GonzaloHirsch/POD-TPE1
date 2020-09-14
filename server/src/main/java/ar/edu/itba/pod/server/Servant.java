@@ -9,16 +9,17 @@ import ar.edu.itba.pod.server.models.Table;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.rmi.RemoteException;
-import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class Servant implements AuditService, ManagementService, VoteService, QueryService {
+public class Servant implements AuditService, ManagementService, VoteService, QueryService, Serializable {
     private static final Logger LOG = LoggerFactory.getLogger(Servant.class);
+    private static final long serialVersionUID = -2300255720754879234L;
 
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
     private final HashMap<Integer, Table> tables = new HashMap<>();
