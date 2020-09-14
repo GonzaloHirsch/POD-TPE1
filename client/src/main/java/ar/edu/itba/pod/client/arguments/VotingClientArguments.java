@@ -19,6 +19,22 @@ public class VotingClientArguments {
         return serverAddress;
     }
 
+    public void setVotesPath(String votesPath) {
+        this.votesPath = votesPath;
+    }
+
+    public void setServerAddress(String serverAddress) {
+        this.serverAddress = serverAddress;
+    }
+
+    public static String getVotesFilenameKey() {
+        return VOTES_FILENAME_KEY;
+    }
+
+    public static String getServerAddressKey() {
+        return SERVER_ADDRESS_KEY;
+    }
+
     /**
      * Parses the arguments passed to the client and stores the values
      *

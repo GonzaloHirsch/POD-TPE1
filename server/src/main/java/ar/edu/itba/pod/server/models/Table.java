@@ -1,7 +1,9 @@
 package ar.edu.itba.pod.server.models;
 
+import ar.edu.itba.pod.comparators.DoubleComparator;
 import ar.edu.itba.pod.models.Party;
 import ar.edu.itba.pod.models.Province;
+import org.apache.commons.lang3.tuple.MutablePair;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
@@ -9,15 +11,9 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Table {
     private final Integer ID;
     private final Province province;
-    private Map<Party, AtomicLong> votes = new HashMap<>();
+    private final Map<Party, AtomicLong> votes = new HashMap<>();
 
-    private static final Comparator<Map.Entry<Party, Double>> fptpComparator = (e1, e2) -> {
-        int valueComparison = e2.getValue().compareTo(e1.getValue());
-        if (valueComparison == 0) {
-            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-        }
-        return valueComparison;
-    };
+    private final DoubleComparator doubleComparator = new DoubleComparator();
 
     public Table(Integer ID, Province province) {
         this.ID = ID;
@@ -48,8 +44,8 @@ public class Table {
         return votes.get(party).longValue();
     }
 
-    public TreeSet<Map.Entry<Party,Double>> getResultsFromTable(){
-        TreeSet<Map.Entry<Party, Double>> entries;
+    public TreeSet<MutablePair<Party,Double>> getResultsFromTable(){
+        TreeSet<MutablePair<Party, Double>> entries;
 
         // Synchronizing in order to stop incoming votes while calculating the result
         synchronized (this.votes) {
@@ -58,8 +54,8 @@ public class Table {
             // Summing up the total amount of votes
             double totalVotes = (double) this.votes.values().stream().mapToLong(AtomicLong::get).reduce(0, Long::sum);
 
-            entries = new TreeSet<>(fptpComparator);
-            votes.forEach((key, value) -> entries.add(new AbstractMap.SimpleEntry<>(key, (((Long) value.get()).doubleValue()) / totalVotes)));
+            entries = new TreeSet<>(doubleComparator);
+            votes.forEach((key, value) -> entries.add(new MutablePair<>(key, (((Long) value.get()).doubleValue()) / totalVotes)));
         }
         return entries;
     }

@@ -1,14 +1,11 @@
 package ar.edu.itba.pod.models;
 
-import ar.edu.itba.pod.models.Party;
-import ar.edu.itba.pod.models.Province;
-
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
 public class Vote implements Serializable {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -4933990121743044415L;
 
     private final Province province;
     private final Integer table; // FIXME puede ser int -> como prefieran

@@ -3,8 +3,8 @@ package ar.edu.itba.pod.client;
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.client.arguments.QueryClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
-import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.models.*;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,55 +34,58 @@ public class QueryClient {
             return;
         }
 
-
+        // Getting the reference to the server
         final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + QueryService.class.getName());
 
-        if(clientArguments.getProvinceName().equals("") && clientArguments.getTableID() == null){
-            try {
+        try {
+            // This is the NATIONAL election
+            if (clientArguments.getProvinceName() == null && clientArguments.getTableID() == null) {
                 ElectionResults results = service.getNationalResults();
-                if(results.getVotingType()== VotingType.NATIONAL)
-                    nationalQuery(results,clientArguments);
-                else
+                if (results.getVotingType() == VotingType.NATIONAL) {
+                    nationalQuery(results, clientArguments);
+                } else {
                     ftptQuery(results, clientArguments, false);
-            } catch (InvalidElectionStateException e) {
-                e.printStackTrace();
+                }
             }
-        }else if(clientArguments.getTableID() != null){
-            try {
+            // This is the TABLE election
+            else if (clientArguments.getTableID() != null) {
                 ElectionResults tableResults = service.getTableResults(clientArguments.getTableID());
-                ftptQuery(tableResults,clientArguments,true);
-            } catch (InvalidElectionStateException e) {
-                e.printStackTrace();
+                ftptQuery(tableResults, clientArguments, true);
             }
-        }else{
-            try {
+            // This is the STATE election
+            else {
                 ElectionResults stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
-                stateQuery(stateResults,clientArguments);
-            } catch (InvalidElectionStateException e) {
-                e.printStackTrace();
+                if (stateResults.getVotingType() == VotingType.STATE) {
+                    stateQuery(stateResults, clientArguments);
+                } else {
+                    ftptQuery(stateResults, clientArguments, false);
+                }
             }
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private static void stateQuery(ElectionResults stateResults, QueryClientArguments clientArguments) {
-        StateElectionsResult stateElectionsResult = stateResults.getStateElectionsResult();
-        TreeSet<Map.Entry<Party,Double>> firstRound = stateElectionsResult.getFirstRound();
-        TreeSet<Map.Entry<Party,Double>> secondRound = stateElectionsResult.getSecondRound();
-        TreeSet<Map.Entry<Party,Double>> thirdRound = stateElectionsResult.getThirdRound();
-        List<Party> winners = stateElectionsResult.getWinners();
+        StateElectionsResult stateElectionsResult = (StateElectionsResult) stateResults;
+        TreeSet<MutablePair<Party, Double>> firstRound = stateElectionsResult.getFirstRound();
+        TreeSet<MutablePair<Party, Double>> secondRound = stateElectionsResult.getSecondRound();
+        TreeSet<MutablePair<Party, Double>> thirdRound = stateElectionsResult.getThirdRound();
+        Party[] winners = stateElectionsResult.getWinners();
 
         String outputString = "Round 1\nApproval;Party" +
-                getStringFromTreeSet(firstRound) +
-                "\nWinners\n" + winners.stream().findFirst() + "\nRound 2\nApproval;Party" +
-                getStringFromTreeSet(secondRound) +
-                "\nWinners\n" + winners.stream().findFirst() + ", " + winners.get(1) + "\nRound 3\nApproval;Party" +
-                getStringFromTreeSet(thirdRound) +
-                "\nWinners\n" + winners.stream().findFirst() + ", " + winners.get(1) + ", " + winners.get(2);
+                getStringFromDoubleTreeSet(firstRound) +
+                "\nWinners\n" + winners[0] + "\nRound 2\nApproval;Party" +
+                getStringFromDoubleTreeSet(secondRound) +
+                "\nWinners\n" + winners[0] + ", " + winners[1] + "\nRound 3\nApproval;Party" +
+                getStringFromDoubleTreeSet(thirdRound) +
+                "\nWinners\n" + winners[0] + ", " + winners[1] + ", " + winners[2];
         write(clientArguments.getOutPutPath(), outputString);
     }
-    private static String getStringFromTreeSet(TreeSet<Map.Entry<Party,Double>> round){
+    private static String getStringFromDoubleTreeSet(TreeSet<MutablePair<Party, Double>> set){
         StringBuilder sb = new StringBuilder();
-        for(Map.Entry<Party, Double> pair : round){
+        for(Map.Entry<Party, Double> pair : set){
             if(pair.getValue()!=null){
                 sb.append("\n");
                 sb.append(pair.getValue()).append(";").append(pair.getKey());
@@ -92,37 +95,38 @@ public class QueryClient {
     }
 
     private static void ftptQuery(ElectionResults results, QueryClientArguments clientArguments, boolean showWinner) {
-        TreeSet<Map.Entry<Party,Double>> ftptResults = results.getFptpResult();
+        FPTPResult fptpResult = (FPTPResult) results;
 
         StringBuilder outputString = new StringBuilder();
         outputString.append("Percentage;Party");
-        for(Map.Entry<Party, Double> pair : ftptResults){
-            outputString.append("\n");
-            outputString.append(pair.getValue()).append(";").append(pair.getKey());
-        }
+        outputString.append(getStringFromDoubleTreeSet(fptpResult.getFptpResults()));
 
         if(showWinner){
-            outputString.append("\nWinner\n" + results.getFptpResult().first().getKey());
+            outputString.append("\nWinner\n").append(fptpResult.getWinner());
         }
         write(clientArguments.getOutPutPath(), outputString.toString());
     }
 
-    private static void nationalQuery(ElectionResults nationalResults, QueryClientArguments clientArguments) {
-        TreeSet<Map.Entry<Party,Double>> automaticRunoff    = nationalResults.getNationalElectionsResult().getAutomaticRunoffResults();
-        TreeSet<Map.Entry<Party,Long>> scoringRound         = nationalResults.getNationalElectionsResult().getScoringRoundResults();
-        Party winner                                        = nationalResults.getNationalElectionsResult().getWinner();
+    public static void nationalQuery(ElectionResults results, QueryClientArguments clientArguments) {
+        NationalElectionsResult nationalResults = (NationalElectionsResult) results;
+        TreeSet<MutablePair<Party, Long>> scoringRound = nationalResults.getScoringRoundResults();
+        TreeSet<MutablePair<Party, Double>> automaticRunoff = nationalResults.getAutomaticRunoffResults();
+        Party winner = nationalResults.getWinner();
 
         StringBuilder outputString = new StringBuilder();
+
+        // Scoring results
         outputString.append("Score;Party");
-        for(Map.Entry<Party, Double> pair : automaticRunoff){
+        for(MutablePair<Party, Long> pair : scoringRound){
             outputString.append("\n");
             outputString.append(pair.getValue()).append(";").append(pair.getKey());
         }
+
+        // Automatic runoff results
         outputString.append("\nPercentage;Party");
-        for(Map.Entry<Party, Long> pair : scoringRound){
-            outputString.append("\n");
-            outputString.append(pair.getValue()).append(";").append(pair.getKey());
-        }
+        outputString.append(getStringFromDoubleTreeSet(automaticRunoff));
+
+        // National election winner
         outputString.append("\nWinner\n").append(winner);
 
         write(clientArguments.getOutPutPath(), outputString.toString());
@@ -134,8 +138,7 @@ public class QueryClient {
             myWriter.write(value);
             myWriter.close();
         } catch (IOException e) {
-            System.out.println("An error occurred.");
-            e.printStackTrace();
+            System.out.println("An error occurred when writing the election results to " + filename);
         }
     }
 }

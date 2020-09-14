@@ -17,7 +17,7 @@ import java.rmi.server.UnicastRemoteObject;
 public class Server {
     private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
-    public static void main(final String[] args) throws RemoteException, AlreadyBoundException {
+    public static void main(final String[] args) throws RemoteException {
         LOG.info("Server Starting ...");
 
         // Creating the instance of the servant and exporting it
