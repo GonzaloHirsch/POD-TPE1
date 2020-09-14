@@ -67,9 +67,9 @@ public class VoteClientTest {
             ElectionResults electionResults = service.getNationalResults();
             nationalQuery(electionResults);
 
-            stateQuery(service.getProvinceResults(Province.JUNGLE), null);
-            stateQuery(service.getProvinceResults(Province.SAVANNAH), null);
-            stateQuery(service.getProvinceResults(Province.TUNDRA), null);
+            stateQuery(service.getProvinceResults(Province.JUNGLE));
+            stateQuery(service.getProvinceResults(Province.SAVANNAH));
+            stateQuery(service.getProvinceResults(Province.TUNDRA));
 
         } catch (IOException | NotBoundException | InvalidElectionStateException e) {
             System.out.println("ERROR: Invalid file given " + e.getMessage());
@@ -191,7 +191,7 @@ public class VoteClientTest {
         return votes;
     }
 
-    private static void stateQuery(ElectionResults stateResults, QueryClientArguments clientArguments) {
+    private static void stateQuery(ElectionResults stateResults) {
         StateElectionsResult stateElectionsResult = (StateElectionsResult) stateResults;
         TreeSet<MutablePair<Party, Double>> firstRound = stateElectionsResult.getFirstRound();
         TreeSet<MutablePair<Party, Double>> secondRound = stateElectionsResult.getSecondRound();
