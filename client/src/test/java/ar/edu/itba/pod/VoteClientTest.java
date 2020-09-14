@@ -7,6 +7,7 @@ import ar.edu.itba.pod.client.arguments.VotingClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.models.*;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -71,7 +72,7 @@ public class VoteClientTest {
         }
     }
     private static void nationalQuery(ElectionResults results) {
-        TreeSet<Map.Entry<Party,Double>> ftptResults = ((FPTPResult) results).getFptpResults();
+        TreeSet<MutablePair<Party, Double>> ftptResults = ((FPTPResult) results).getFptpResults();
 
         StringBuilder outputString = new StringBuilder();
         outputString.append("Percentage;Party");
