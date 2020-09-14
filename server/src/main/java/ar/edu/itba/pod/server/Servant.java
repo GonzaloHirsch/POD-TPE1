@@ -12,8 +12,6 @@ import org.slf4j.LoggerFactory;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class Servant implements AuditService, ManagementService, VoteService, QueryService {
@@ -28,8 +26,6 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
      * Variable to hold the state of the election
      */
     private ElectionState electionState = ElectionState.PENDING;
-
-    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
 
