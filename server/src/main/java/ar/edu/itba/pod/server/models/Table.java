@@ -55,7 +55,7 @@ public class Table {
             double totalVotes = (double) this.votes.values().stream().mapToLong(AtomicLong::get).reduce(0, Long::sum);
 
             entries = new TreeSet<>(doubleComparator);
-            votes.forEach((key, value) -> entries.add(new MutablePair<>(key, (((Long) value.get()).doubleValue()) / totalVotes)));
+            votes.forEach((key, value) -> entries.add(new MutablePair<>(key, ((((Long) value.get()).doubleValue()) / totalVotes) * 100.0 )));
         }
         return entries;
     }
