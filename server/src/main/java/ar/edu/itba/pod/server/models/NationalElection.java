@@ -62,6 +62,12 @@ public class NationalElection implements Serializable {
             }
         }
 
+        for (Party party : Party.values()) {
+            if (!scoringRoundResults.containsKey(party)) {
+                scoringRoundResults.put(party, 0L);
+            }
+        }
+
         this.sortedScoringResults = new TreeSet<>(longComparator);
         this.sortedScoringResults.addAll(scoringRoundResults.entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue())).collect(Collectors.toList()));
 
@@ -94,7 +100,7 @@ public class NationalElection implements Serializable {
         // 3. Calculate the percentages for each party
         double totalScore = runoffResults.values().stream().mapToLong(v -> v).sum();
         runoffResults.forEach((party, score) -> {
-            automaticRunoffResult.put(party, (double) score / totalScore);
+            automaticRunoffResult.put(party, ((double) score / totalScore) * 100.0);
         });
 
         // 4. Sort the results and get the first one

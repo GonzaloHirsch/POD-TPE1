@@ -6,7 +6,9 @@ import java.util.Optional;
 import java.util.Properties;
 
 public class QueryClientArguments {
-    private String serverAddress ="",provinceName="",outPutPath;
+    private String serverAddress = "";
+    private String provinceName = "";
+    private String outputPath;
     private Integer tableID = null;
 
     private static final String STATE_KEY = "state";
@@ -20,8 +22,8 @@ public class QueryClientArguments {
     public String getProvinceName() {
         return provinceName;
     }
-    public String getOutPutPath() {
-        return outPutPath;
+    public String getOutputPath() {
+        return outputPath;
     }
 
     public Integer getTableID() {
@@ -50,7 +52,7 @@ public class QueryClientArguments {
             this.printHelp();
             throw new InvalidArgumentsException("Invalid argument for outPath");
         } else {
-            this.outPutPath = props.getProperty(OUT_PATH);
+            this.outputPath = props.getProperty(OUT_PATH);
         }
 
         // Try to obtain the server address

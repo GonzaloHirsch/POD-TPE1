@@ -71,24 +71,43 @@ public class VoteClientTest {
             System.out.println("ERROR: Invalid file given " + e.getMessage());
         }
     }
+
+    private static String getStringFromDoubleTreeSet(TreeSet<MutablePair<Party, Double>> set, boolean includePercent){
+        StringBuilder sb = new StringBuilder();
+        String percent = includePercent ? "%" : "";
+        for(Map.Entry<Party, Double> pair : set){
+            if(pair.getValue()!=null){
+                sb.append("\n");
+                sb.append(String.format("%.2f", pair.getValue())).append(percent).append(";").append(pair.getKey());
+            }
+        }
+        return sb.toString();
+    }
+
     private static void nationalQuery(ElectionResults results) {
-        TreeSet<MutablePair<Party, Long>> scoring = ((NationalElectionsResult) results).getScoringRoundResults();
-        TreeSet<MutablePair<Party, Double>> automatic = ((NationalElectionsResult) results).getAutomaticRunoffResults();
+        NationalElectionsResult nationalResults = (NationalElectionsResult) results;
+        TreeSet<MutablePair<Party, Long>> scoringRound = nationalResults.getScoringRoundResults();
+        TreeSet<MutablePair<Party, Double>> automaticRunoff = nationalResults.getAutomaticRunoffResults();
+        Party winner = nationalResults.getWinner();
 
         StringBuilder outputString = new StringBuilder();
+
+        // Scoring results
         outputString.append("Score;Party");
-        for(Map.Entry<Party, Long> pair : scoring){
+        for(MutablePair<Party, Long> pair : scoringRound){
             outputString.append("\n");
             outputString.append(pair.getValue()).append(";").append(pair.getKey());
         }
+
+        // Automatic runoff results
         outputString.append("\nPercentage;Party");
-        for(Map.Entry<Party, Double> pair : automatic){
-            outputString.append("\n");
-            outputString.append(pair.getValue()).append(";").append(pair.getKey());
-        }
-        outputString.append("\nWinner\n").append(((NationalElectionsResult) results).getWinner());
+        outputString.append(getStringFromDoubleTreeSet(automaticRunoff, true));
+
+        // National election winner
+        outputString.append("\nWinner\n").append(winner);
         System.out.println(outputString);
     }
+
     /**
      * Parses the given file and generates the votes
      * @param path Path to the file
