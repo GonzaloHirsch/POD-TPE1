@@ -10,6 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.rmi.RemoteException;
+import java.rmi.server.UnicastRemoteObject;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -157,18 +158,12 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             return this.getAllTableResults();
 
         } else if(electionState == ElectionState.CLOSED){
-            System.out.println("Closed elections");
             Party winner = nationalElection.getNationalElectionWinner();
-            System.out.println(winner.getDescription());
-            NationalElectionsResult nationalResults = new NationalElectionsResult(
+            return new NationalElectionsResult(
                     nationalElection.getSortedScoringRoundResults(),
                     nationalElection.getSortedAutomaticRunoffResults(),
                     winner
             );
-            System.out.println("creating election results");
-            ElectionResults electionResults = new ElectionResults(nationalResults);
-            System.out.println("Returning election results");
-            return electionResults;
         }
 
         // Elections have not began
@@ -188,13 +183,12 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             return this.getProvinceTableResults(province);
         }
         else if(electionState == ElectionState.CLOSED){
-            StateElectionsResult stateResults = new StateElectionsResult(province,
+            return new StateElectionsResult(province,
                     stateElection.getFirstRound(province),
                     stateElection.getSecondRound(province),
                     stateElection.getThirdRound(province),
                     stateElection.getWinners(province));
-            return new ElectionResults(stateResults);
-        };
+        }
 
         throw new InvalidElectionStateException("Elections PENDING. Can not request state results");
     }
@@ -213,7 +207,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
 
         if(electionState != ElectionState.PENDING){
-            return new ElectionResults(tables.get(tableID).getResultsFromTable());
+            return new FPTPResult(tables.get(tableID).getResultsFromTable());
         }
         throw new InvalidElectionStateException("Elections PENDING. Can not request FPTP results");
     }
@@ -249,6 +243,6 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         TreeSet<Map.Entry<Party, Double>> fptpResult = new TreeSet<>(fptpComparator);
         fptpVotes.forEach((key, value) -> fptpResult.add(new AbstractMap.SimpleEntry<>(key, (double) value / totalVotes)));
 
-        return new ElectionResults(fptpResult);
+        return new FPTPResult(fptpResult);
     }
 }

@@ -5,9 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeSet;
 
-public class StateElectionsResult implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class StateElectionsResult extends ElectionResults{
     private final Province province;
     private final TreeSet<Map.Entry<Party, Double>> firstRound;
     private final TreeSet<Map.Entry<Party, Double>> secondRound;
@@ -22,6 +20,7 @@ public class StateElectionsResult implements Serializable {
         this.secondRound = secondRound;
         this.thirdRound = thirdRound;
         this.winners = winners;
+        this.votingType = VotingType.STATE;
     }
 
     public Province getProvince() {

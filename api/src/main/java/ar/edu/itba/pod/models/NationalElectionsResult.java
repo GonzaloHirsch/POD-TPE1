@@ -1,12 +1,9 @@
 package ar.edu.itba.pod.models;
 
-import java.io.Serializable;
 import java.util.Map;
 import java.util.TreeSet;
 
-public class NationalElectionsResult implements Serializable {
-    private static final long serialVersionUID = 1L;
-
+public class NationalElectionsResult extends ElectionResults {
     private TreeSet<Map.Entry<Party, Long>> scoringRoundResults;
     private TreeSet<Map.Entry<Party, Double>> automaticRunoffResults;
     private Party winner;
@@ -15,6 +12,7 @@ public class NationalElectionsResult implements Serializable {
         this.scoringRoundResults = scoring;
         this.automaticRunoffResults = runoff;
         this.winner = winner;
+        this.votingType = VotingType.NATIONAL;
     }
 
     public TreeSet<Map.Entry<Party, Long>> getScoringRoundResults() {

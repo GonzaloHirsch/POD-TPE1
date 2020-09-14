@@ -30,8 +30,8 @@ public class NationalElection implements Serializable {
     };
 
     // Sorted results
-    private TreeSet<Map.Entry<Party, Long>> sortedScoringResults;
-    private TreeSet<Map.Entry<Party, Double>> sortedRunoffResults;
+    private TreeSet<Map.Entry<Party, Long>> sortedScoringResults = new TreeSet<>(scoringComparator);
+    private TreeSet<Map.Entry<Party, Double>> sortedRunoffResults = new TreeSet<>(runoffComparator);
     private Party winner = null;
 
     public NationalElection() { }
@@ -48,8 +48,10 @@ public class NationalElection implements Serializable {
      * Will only be called ONCE and hence do not need to be synchronized
      */
     public void computeNationalElectionResults() {
-        List<Party> scoringRoundWinners = this.scoringRound();
-        winner = this.automaticRunoff(scoringRoundWinners);
+        if (this.ballots.size() > 0) {
+            List<Party> scoringRoundWinners = this.scoringRound();
+            winner = this.automaticRunoff(scoringRoundWinners);
+        }
     }
 
     /**
@@ -73,11 +75,7 @@ public class NationalElection implements Serializable {
         this.sortedScoringResults.addAll(scoringRoundResults.entrySet());
 
         // Sorting the candidates and obtaining the two top ones
-        List<Party> winningCandidates = this.sortedScoringResults.stream().limit(2).map(Map.Entry::getKey).collect(Collectors.toList());
-        if (winningCandidates.size() != 2) {
-            throw new IllegalStateException("Scoring round has to have exactly 2 winners");
-        }
-        return winningCandidates;
+        return this.sortedScoringResults.stream().limit(2).map(Map.Entry::getKey).collect(Collectors.toList());
     }
 
     /**
