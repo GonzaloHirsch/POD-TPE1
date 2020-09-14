@@ -33,17 +33,11 @@ public class QueryClient {
             return;
         }
 
-
+        // Getting the reference to the server
         final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + QueryService.class.getName());
 
-        System.out.println("Before client argument");
-        System.out.println("Address: " + clientArguments.getServerAddress());
-        System.out.println("File: " + clientArguments.getOutPutPath());
-        System.out.println("Province: " + clientArguments.getProvinceName());
-        System.out.println("Table: " + clientArguments.getTableID());
-        System.out.println("Service: " + service);
-
         try {
+            // This is the NATIONAL election
             if (clientArguments.getProvinceName() == null && clientArguments.getTableID() == null) {
                 ElectionResults results = service.getNationalResults();
                 if (results.getVotingType() == VotingType.NATIONAL) {
@@ -51,10 +45,14 @@ public class QueryClient {
                 } else {
                     ftptQuery(results, clientArguments, false);
                 }
-            } else if (clientArguments.getTableID() != null) {
+            }
+            // This is the TABLE election
+            else if (clientArguments.getTableID() != null) {
                 ElectionResults tableResults = service.getTableResults(clientArguments.getTableID());
                 ftptQuery(tableResults, clientArguments, true);
-            } else {
+            }
+            // This is the STATE election
+            else {
                 ElectionResults stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
                 if (stateResults.getVotingType() == VotingType.STATE) {
                     stateQuery(stateResults, clientArguments);
@@ -140,7 +138,6 @@ public class QueryClient {
             myWriter.close();
         } catch (IOException e) {
             System.out.println("An error occurred when writing the election results to " + filename);
-            e.printStackTrace();
         }
     }
 }
