@@ -50,8 +50,9 @@ public class VoteClientTest {
     public void testVoteClient(){
         try {
             // Parsing the file
-            List<Vote> votes = parseInputFile("/home/fpetrikovich/Programacion/POD/POD-TPE1/examples/votes.csv");
-//            List<Vote> votes = parseInputFile("/Users/gastonlifschitz/ITBA/POD/POD-TPE1/examples/votes.csv");
+            //List<Vote> votes = parseInputFile("/home/fpetrikovich/Programacion/POD/POD-TPE1/examples/votes.csv");
+            //List<Vote> votes = parseInputFile("/Users/gastonlifschitz/ITBA/POD/POD-TPE1/examples/votes.csv");
+            List<Vote> votes = parseInputFile("/Users/gonzalo/Repository/POD-TPE1/examples/votes.csv");
 
             final ManagementService managementService = (ManagementService) Naming.lookup("//127.0.0.1:1099/" + ManagementService.class.getName());
 
@@ -66,10 +67,11 @@ public class VoteClientTest {
 
             final QueryService service = (QueryService) Naming.lookup("//127.0.0.1:1099/" + QueryService.class.getName());
 
-            ElectionResults electionResults = service.getNationalResults();
-            nationalQuery(electionResults,null);
+            ElectionResults electionResults = service.getProvinceResults(Province.JUNGLE);
+            //nationalQuery(electionResults,null);
 
         } catch (IOException | NotBoundException | InvalidElectionStateException e) {
+            e.printStackTrace();
             System.out.println("ERROR: Invalid file given " + e.getMessage());
         }
     }
