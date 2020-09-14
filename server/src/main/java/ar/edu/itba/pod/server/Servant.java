@@ -233,7 +233,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         double totalVotes = (double) fptpVotes.values().stream().reduce(0L, Long::sum);
 
         TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(doubleComparator);
-        fptpVotes.forEach((key, value) -> fptpResult.add(new MutablePair<>(key, (double) value / totalVotes)));
+        fptpVotes.forEach((key, value) -> fptpResult.add(new MutablePair<>(key, (((double) value / totalVotes)) * 100.0)));
 
         return new FPTPResult(fptpResult);
     }

@@ -133,6 +133,7 @@ public class VoteClient {
         // Iterating and splitting in the ; as indicated
         for (String line : lines)
         {
+            System.out.println(line);
             /*
             * The parts of the string are:
             *  - 0 -> table id
@@ -152,17 +153,20 @@ public class VoteClient {
             Map<Party, Long> starVote = new HashMap<>();
             List<Party> spavVote = new ArrayList<>();
 
-            // Iterating through the votes strings
-            for (String s : starAndSpavVotes){
-                starAndSpavVoteValues = s.split("\\|");
+            if (starAndSpavVotes.length >= 1 && !starAndSpavVotes[0].isEmpty()){
+                // Iterating through the votes strings
+                for (String s : starAndSpavVotes){
+                    LOG.debug("{} THE VOTE", s);
+                    starAndSpavVoteValues = s.split("\\|");
 
-                // Splitting the values
-                starVoteParty = Party.fromValue(starAndSpavVoteValues[STAR_VOTE_PARTY]);
-                starVoteValue = Long.parseLong(starAndSpavVoteValues[STAR_VOTE_VALUE]);
+                    // Splitting the values
+                    starVoteParty = Party.fromValue(starAndSpavVoteValues[STAR_VOTE_PARTY]);
+                    starVoteValue = Long.parseLong(starAndSpavVoteValues[STAR_VOTE_VALUE]);
 
-                // Adding to the structures
-                starVote.put(starVoteParty, starVoteValue);
-                spavVote.add(starVoteParty);
+                    // Adding to the structures
+                    starVote.put(starVoteParty, starVoteValue);
+                    spavVote.add(starVoteParty);
+                }
             }
 
             // Creating vote and adding it to the list
