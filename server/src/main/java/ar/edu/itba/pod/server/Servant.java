@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.*;
+import ar.edu.itba.pod.comparators.DoubleComparator;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.models.*;
 import ar.edu.itba.pod.server.models.NationalElection;
@@ -37,13 +38,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     private final String STATE_LOCK = "ELECTION_STATE_LOCK";
 
     // Will compare first with percentage and then the party
-    private final static Comparator<Map.Entry<Party, Double>> fptpComparator = (e1, e2) -> {
-        int valueComparison = e2.getValue().compareTo(e1.getValue());
-        if (valueComparison == 0) {
-            return e1.getKey().getDescription().compareTo(e2.getKey().getDescription());
-        }
-        return valueComparison;
-    };
+    private final DoubleComparator doubleComparator = new DoubleComparator();
 
     //////////////////////////////////////////////////////////////////////////////////////////
     //                                      AUDIT METHODS
@@ -241,7 +236,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     private ElectionResults newElectionResults(Map<Party, Long> fptpVotes) {
         double totalVotes = (double) fptpVotes.values().stream().reduce(0L, Long::sum);
 
-        TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(fptpComparator);
+        TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(doubleComparator);
         fptpVotes.forEach((key, value) -> fptpResult.add(new MutablePair<>(key, (double) value / totalVotes)));
 
         return new FPTPResult(fptpResult);

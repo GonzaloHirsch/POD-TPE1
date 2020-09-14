@@ -13,7 +13,7 @@ public class Table {
     private final Province province;
     private final Map<Party, AtomicLong> votes = new HashMap<>();
 
-    private static final DoubleComparator doubleComparator = new DoubleComparator();
+    private final DoubleComparator doubleComparator = new DoubleComparator();
 
     public Table(Integer ID, Province province) {
         this.ID = ID;

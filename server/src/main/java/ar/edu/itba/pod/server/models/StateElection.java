@@ -19,7 +19,7 @@ public class StateElection {
     private List<Party> winners = new ArrayList<>();
 
     // Comparator
-    private static final DoubleComparator doubleComparator = new DoubleComparator();
+    private final DoubleComparator doubleComparator = new DoubleComparator();
 
     public StateElection() {
         Arrays.stream(Province.values()).forEach(p -> ballots.put(p, new ArrayList<>()));

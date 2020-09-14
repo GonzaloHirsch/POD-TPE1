@@ -17,8 +17,8 @@ public class NationalElection implements Serializable {
     private final List<Map<Party, Long>> ballots = new ArrayList<>();
 
     // Comparators
-    private static final DoubleComparator doubleComparator = new DoubleComparator();
-    private static final LongComparator longComparator = new LongComparator();
+    private final DoubleComparator doubleComparator = new DoubleComparator();
+    private final LongComparator longComparator = new LongComparator();
 
     // Sorted results
     private TreeSet<MutablePair<Party, Long>> sortedScoringResults = new TreeSet<>(longComparator);

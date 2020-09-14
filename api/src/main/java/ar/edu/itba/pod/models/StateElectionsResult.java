@@ -2,8 +2,6 @@ package ar.edu.itba.pod.models;
 
 import org.apache.commons.lang3.tuple.MutablePair;
 
-import java.util.List;
-import java.util.Map;
 import java.util.TreeSet;
 
 public class StateElectionsResult extends ElectionResults{
