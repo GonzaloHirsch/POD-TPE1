@@ -62,12 +62,6 @@ public class NationalElection implements Serializable {
             }
         }
 
-        for (Party party : Party.values()) {
-            if (!scoringRoundResults.containsKey(party)) {
-                scoringRoundResults.put(party, 0L);
-            }
-        }
-
         this.sortedScoringResults = new TreeSet<>(longComparator);
         this.sortedScoringResults.addAll(scoringRoundResults.entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue())).collect(Collectors.toList()));
 
