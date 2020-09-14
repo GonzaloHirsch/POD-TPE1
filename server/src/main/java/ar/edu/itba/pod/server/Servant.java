@@ -139,7 +139,6 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
         // Notify the vote
         this.notifyPartyVote(vote);
-        System.out.println("3");
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
