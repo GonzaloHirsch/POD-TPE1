@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.TreeSet;
 
 public class FPTPResult extends ElectionResults {
-    
+
     private TreeSet<Map.Entry<Party, Double>> fptpResults;
 
     public FPTPResult (TreeSet<Map.Entry<Party, Double>> fptpResults) {
