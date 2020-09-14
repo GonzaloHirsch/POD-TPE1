@@ -1,8 +1,8 @@
 package ar.edu.itba.pod.server.models;
 
+import ar.edu.itba.pod.comparators.DoubleComparator;
+import ar.edu.itba.pod.comparators.LongComparator;
 import ar.edu.itba.pod.models.Party;
-import ar.edu.itba.pod.server.comparators.DoubleComparator;
-import ar.edu.itba.pod.server.comparators.LongComparator;
 import org.apache.commons.lang3.tuple.MutablePair;
 
 import java.io.Serializable;
@@ -10,6 +10,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class NationalElection implements Serializable {
+    private static final long serialVersionUID = 3779368141238758571L;
     /**
      * List to hold all the votes in order to be able to perform the automatic runoff
      */

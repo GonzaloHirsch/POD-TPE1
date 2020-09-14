@@ -1,8 +1,8 @@
 package ar.edu.itba.pod.server.models;
 
+import ar.edu.itba.pod.comparators.DoubleComparator;
 import ar.edu.itba.pod.models.Party;
 import ar.edu.itba.pod.models.Province;
-import ar.edu.itba.pod.server.comparators.DoubleComparator;
 import org.apache.commons.lang3.tuple.MutablePair;
 
 import java.util.*;

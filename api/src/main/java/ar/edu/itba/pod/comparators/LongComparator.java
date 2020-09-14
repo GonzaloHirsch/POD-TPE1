@@ -1,4 +1,4 @@
-package ar.edu.itba.pod.server.comparators;
+package ar.edu.itba.pod.comparators;
 
 import ar.edu.itba.pod.models.Party;
 import org.apache.commons.lang3.tuple.MutablePair;
