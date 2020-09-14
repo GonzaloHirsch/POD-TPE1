@@ -1,8 +1,9 @@
 package ar.edu.itba.pod.client;
 
-import ar.edu.itba.pod.*;
+import ar.edu.itba.pod.QueryService;
 import ar.edu.itba.pod.client.arguments.QueryClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.models.*;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.slf4j.Logger;
@@ -14,54 +15,59 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
-import java.util.Map;
 import java.util.TreeSet;
 
 public class QueryClient {
     private static final Logger LOG = LoggerFactory.getLogger(QueryClient.class);
 
-    public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException {
-        LOG.info("QueryClient has started...");
-
-        QueryClientArguments clientArguments = new QueryClientArguments();
-
-        // Parsing the arguments
+    public static void main(final String[] args) {
         try {
-            clientArguments.parseArguments();
-        } catch (InvalidArgumentsException e) {
-            System.out.println(e.getMessage());
-            return;
-        }
+            QueryClientArguments clientArguments = new QueryClientArguments();
 
-        // Getting the reference to the server
-        final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + QueryService.class.getName());
+            // Parsing the arguments
+            try {
+                clientArguments.parseArguments();
+            } catch (InvalidArgumentsException e) {
+                System.out.println(e.getMessage());
+                return;
+            }
 
-        try {
-            // This is the NATIONAL election
-            if (clientArguments.getProvinceName() == null && clientArguments.getTableID() == null) {
-                ElectionResults results = service.getNationalResults();
-                if (results.getVotingType() == VotingType.NATIONAL) {
-                    nationalQuery(results, clientArguments.getOutputPath());
-                } else {
-                    ftptQuery(results, clientArguments.getOutputPath(), false);
+            // Getting the reference to the server
+            final QueryService service = (QueryService) Naming.lookup("//" + clientArguments.getServerAddress() + "/" + QueryService.class.getName());
+
+            try {
+                // This is the NATIONAL election
+                if (clientArguments.getProvinceName() == null && clientArguments.getTableID() == null) {
+                    ElectionResults results = service.getNationalResults();
+                    if (results.getVotingType() == VotingType.NATIONAL) {
+                        nationalQuery(results, clientArguments.getOutputPath());
+                    } else {
+                        ftptQuery(results, clientArguments.getOutputPath(), false);
+                    }
                 }
-            }
-            // This is the TABLE election
-            else if (clientArguments.getTableID() != null) {
-                ElectionResults tableResults = service.getTableResults(clientArguments.getTableID());
-                ftptQuery(tableResults, clientArguments.getOutputPath(), true);
-            }
-            // This is the STATE election
-            else {
-                ElectionResults stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
-                if (stateResults.getVotingType() == VotingType.STATE) {
-                    stateQuery(stateResults, clientArguments.getOutputPath());
-                } else {
-                    ftptQuery(stateResults, clientArguments.getOutputPath(), false);
+                // This is the TABLE election
+                else if (clientArguments.getTableID() != null) {
+                    ElectionResults tableResults = service.getTableResults(clientArguments.getTableID());
+                    ftptQuery(tableResults, clientArguments.getOutputPath(), true);
                 }
+                // This is the STATE election
+                else {
+                    ElectionResults stateResults = service.getProvinceResults(Province.fromValue(clientArguments.getProvinceName()));
+                    if (stateResults.getVotingType() == VotingType.STATE) {
+                        stateQuery(stateResults, clientArguments.getOutputPath());
+                    } else {
+                        ftptQuery(stateResults, clientArguments.getOutputPath(), false);
+                    }
+                }
+            } catch (InvalidElectionStateException e) {
+                System.out.println("ERROR: Invalid election state");
             }
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
+        } catch (RemoteException re) {
+            System.out.println("ERROR: Exception in the remote server");
+        } catch (NotBoundException nbe) {
+            System.out.println("ERROR: Service not bound");
+        } catch (MalformedURLException me) {
+            System.out.println("ERROR: Malformed URL");
         }
     }
 
