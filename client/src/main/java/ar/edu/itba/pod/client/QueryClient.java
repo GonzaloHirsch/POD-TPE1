@@ -84,12 +84,11 @@ public class QueryClient {
     private static String getStringFromDoubleTreeSet(TreeSet<MutablePair<Party, Double>> set, boolean includePercent){
         StringBuilder sb = new StringBuilder();
         String percent = includePercent ? "%" : "";
-        for(Map.Entry<Party, Double> pair : set){
-            if(pair.getValue()!=null){
-                sb.append("\n");
-                sb.append(String.format("%.2f", pair.getValue())).append(percent).append(";").append(pair.getKey());
-            }
-        }
+
+        set.forEach(pair -> {
+            if(pair.getRight() != null && pair.getRight() != 0.0)
+                sb.append("\n").append(String.format("%.2f", pair.getValue())).append(percent).append(";").append(pair.getKey());
+        });
         return sb.toString();
     }
 
@@ -116,11 +115,10 @@ public class QueryClient {
 
         // Scoring results
         outputString.append("Score;Party");
-        for(MutablePair<Party, Long> pair : scoringRound){
-            outputString.append("\n");
-            outputString.append(pair.getValue()).append(";").append(pair.getKey());
-        }
-
+        scoringRound.forEach(pair -> {
+            if(pair.getRight()!=0)
+                outputString.append("\n").append(pair.getValue()).append(";").append(pair.getKey());
+        });
         // Automatic runoff results
         outputString.append("\nPercentage;Party");
         outputString.append(getStringFromDoubleTreeSet(automaticRunoff, true));

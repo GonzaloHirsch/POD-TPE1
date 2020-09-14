@@ -6,8 +6,8 @@ import java.util.Optional;
 import java.util.Properties;
 
 public class QueryClientArguments {
-    private String serverAddress = "";
-    private String provinceName = "";
+    private String serverAddress;
+    private String provinceName;
     private String outputPath;
     private Integer tableID = null;
 
