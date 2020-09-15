@@ -140,7 +140,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     //////////////////////////////////////////////////////////////////////////////////////////
 
     @Override
-    public ElectionResults getNationalResults() throws RemoteException, InvalidElectionStateException {
+    public ElectionResults getNationalResults() throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
         ElectionState electionState;
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
         synchronized (this.STATE_LOCK) {
@@ -167,7 +167,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     }
 
     @Override
-    public ElectionResults getProvinceResults(Province province) throws RemoteException, InvalidElectionStateException {
+    public ElectionResults getProvinceResults(Province province) throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
         ElectionState electionState;
 
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
@@ -193,7 +193,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     }
 
     @Override
-    public ElectionResults getTableResults(Integer tableID) throws RemoteException, InvalidElectionStateException {
+    public ElectionResults getTableResults(Integer tableID) throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
         ElectionState electionState;
 
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
@@ -215,7 +215,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
     // Will only be called when getNationalResults is called and elections are still open
     @Override
-    public ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException {
+    public ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
         Map<Party, Long> fptpVotes;
         synchronized (this.tables) {
             fptpVotes = this.tables.values().stream()
@@ -227,7 +227,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
     // Will only be called when getProvinceResults is called and elections are still open
     @Override
-    public ElectionResults getProvinceTableResults(Province province) throws RemoteException, InvalidElectionStateException {
+    public ElectionResults getProvinceTableResults(Province province) throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
         Map<Party, Long> fptpVotes;
         synchronized (this.tables) {
             fptpVotes = this.tables.values().stream()
@@ -238,7 +238,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         return newElectionResults(fptpVotes);
     }
 
-    private ElectionResults newElectionResults(Map<Party, Long> fptpVotes) {
+    private ElectionResults newElectionResults(Map<Party, Long> fptpVotes) throws NoVotesRegisteredException {
         boolean noVotes = fptpVotes.entrySet().stream().allMatch(e -> e.getValue() == 0L);
         // Error if there are no votes
         if(noVotes) {

@@ -4,6 +4,7 @@ import ar.edu.itba.pod.QueryService;
 import ar.edu.itba.pod.client.arguments.QueryClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.exceptions.NoVotesRegisteredException;
 import ar.edu.itba.pod.models.*;
 import org.apache.commons.lang3.tuple.MutablePair;
 
@@ -16,7 +17,7 @@ import java.rmi.RemoteException;
 import java.util.TreeSet;
 
 public class QueryClient {
-    public static void main(final String[] args) throws RemoteException, NotBoundException, MalformedURLException {
+    public static void main(final String[] args) {
         // Parsing the arguments
         try {
             QueryClientArguments clientArguments = new QueryClientArguments();
@@ -57,7 +58,9 @@ public class QueryClient {
                     }
                 }
             } catch (InvalidElectionStateException e) {
-                System.out.println(e.getMessage());
+                System.out.println("ERROR: Invalid election state");
+            } catch (NoVotesRegisteredException e) {
+                System.out.println("No Votes");
             }
         } catch (RemoteException re) {
             System.out.println("ERROR: Exception in the remote server");
