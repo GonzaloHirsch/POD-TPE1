@@ -148,7 +148,7 @@ public class VotesFileGenerator {
         StringBuilder ballot = new StringBuilder();
 
         // How many votes are going to be for star and spav
-        int ballotVotes = random.nextInt(4);
+        int ballotVotes = random.nextInt(2) + 2;
 
         // we want to shuffle points for these votes
         Collections.shuffle(points);
