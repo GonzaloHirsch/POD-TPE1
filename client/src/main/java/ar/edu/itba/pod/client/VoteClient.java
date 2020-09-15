@@ -28,7 +28,7 @@ import java.util.concurrent.Executors;
 public class VoteClient {
     private static final Logger LOG = LoggerFactory.getLogger(VoteClient.class);
 
-    private static final int MAX_THREADS = 10;
+    private static final int MAX_THREADS = 20;
 
     // Executor service for all threads
     private static final ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
