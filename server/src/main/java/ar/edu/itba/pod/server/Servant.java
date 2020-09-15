@@ -18,7 +18,8 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class Servant implements AuditService, ManagementService, VoteService, QueryService {
-    private static final ExecutorService executor = Executors.newFixedThreadPool(4);
+    private static final int NUMBER_OF_THREADS = 4;
+    private static final ExecutorService executor = Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
     private final HashMap<Integer, Table> tables = new HashMap<>();

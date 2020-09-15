@@ -57,7 +57,7 @@ public class VoteClientTest {
             managementService.openElection();
 
             // Emitting votes
-            //emitAllVotes(service, votes);
+            emitAllVotes(service, votes);
 
             votes.forEach(System.out::println);
 

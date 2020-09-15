@@ -17,6 +17,9 @@ import java.rmi.RemoteException;
 import java.util.TreeSet;
 
 public class QueryClient {
+    private static final int WINNER_1 = 0;
+    private static final int WINNER_2 = 1;
+    private static final int WINNER_3 = 2;
     public static void main(final String[] args) {
         // Parsing the arguments
         try {
@@ -83,11 +86,11 @@ public class QueryClient {
 
         String outputString = "Round 1\nApproval;Party" +
                 getStringFromDoubleTreeSet(firstRound, false) +
-                "\nWinners\n" + winners[0] + "\nRound 2\nApproval;Party" +
+                "\nWinners\n" + winners[WINNER_1] + "\nRound 2\nApproval;Party" +
                 getStringFromDoubleTreeSet(secondRound, false) +
-                "\nWinners\n" + winners[0] + ", " + winners[1] + "\nRound 3\nApproval;Party" +
+                "\nWinners\n" + winners[WINNER_1] + ", " + winners[WINNER_2] + "\nRound 3\nApproval;Party" +
                 getStringFromDoubleTreeSet(thirdRound, false) +
-                "\nWinners\n" + winners[0] + ", " + winners[1] + ", " + winners[2];
+                "\nWinners\n" + winners[WINNER_1] + ", " + winners[WINNER_2] + ", " + winners[WINNER_3];
         write(filename, outputString);
     }
 
