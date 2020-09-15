@@ -118,7 +118,7 @@ public class StateElection {
      * @return long representing votes quantity
      */
     public long getVotesQuantity() {
-        return ballots.values().stream().mapToLong(v -> v.size()).sum();
+        return ballots.values().stream().mapToLong(List::size).sum();
     }
 
     /**

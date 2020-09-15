@@ -175,6 +175,8 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             return this.getProvinceTableResults(province);
         }
         else if(electionState == ElectionState.CLOSED){
+            if(stateElection.getFirstRound(province).size() == 0)
+                throw new InvalidElectionStateException("No votes for province " + province);
             return new StateElectionsResult(province,
                     this.stateElection.getFirstRound(province),
                     this.stateElection.getSecondRound(province),
@@ -206,19 +208,21 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
     // Will only be called when getNationalResults is called and elections are still open
     @Override
-    public ElectionResults getAllTableResults() throws RemoteException {
+    public ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException {
         Map<Party, Long> fptpVotes;
         synchronized (this.tables) {
             fptpVotes = this.tables.values().stream()
                     .flatMap(t -> t.getVotes().entrySet().stream())
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
+        if(fptpVotes.size() == 0)
+            throw new InvalidElectionStateException("No votes registered");
         return newElectionResults(fptpVotes);
     }
 
     // Will only be called when getProvinceResults is called and elections are still open
     @Override
-    public ElectionResults getProvinceTableResults(Province province) throws RemoteException {
+    public ElectionResults getProvinceTableResults(Province province) throws RemoteException, InvalidElectionStateException {
         Map<Party, Long> fptpVotes;
         synchronized (this.tables) {
             fptpVotes = this.tables.values().stream()
@@ -226,6 +230,8 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     .flatMap(t -> t.getVotes().entrySet().stream())
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
+        if (fptpVotes.size() == 0)
+            throw new InvalidElectionStateException("No votes for province " + province);
         return newElectionResults(fptpVotes);
     }
 
