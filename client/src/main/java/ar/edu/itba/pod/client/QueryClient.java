@@ -14,6 +14,7 @@ import java.net.MalformedURLException;
 import java.rmi.Naming;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
+import java.util.Locale;
 import java.util.TreeSet;
 
 public class QueryClient {
@@ -100,7 +101,7 @@ public class QueryClient {
 
         set.forEach(pair -> {
             if (pair.getRight() != null && pair.getRight() > 0)
-                sb.append("\n").append(String.format("%.2f", pair.getValue())).append(percent).append(";").append(pair.getKey());
+                sb.append("\n").append(String.format(Locale.ENGLISH, "%.2f", pair.getValue())).append(percent).append(";").append(pair.getKey());
         });
         return sb.toString();
     }
