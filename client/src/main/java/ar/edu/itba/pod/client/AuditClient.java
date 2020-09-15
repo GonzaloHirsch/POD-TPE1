@@ -6,8 +6,6 @@ import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.models.Party;
 import ar.edu.itba.pod.PartyVoteHandler;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
@@ -44,18 +42,14 @@ public class AuditClient {
     }
 
     private static void registerAuditOfficerThread(AuditService service, Party party, int table, PartyVoteHandler handler) {
-        Runnable r = () -> {
-            try {
-                service.registerAuditOfficer(party, table, handler);
-            } catch (RemoteException e) {
-                System.out.println("ERROR: Remote Exception. Error registering the audit officer");
-            } catch (InvalidElectionStateException e) {
-                System.out.println(e.getMessage());
-            }
-            System.out.format("Audit officer of %s registered on polling place %s\n", party.toString(), table);
-        };
-        Thread t = new Thread(r);
-        t.start();
+        try {
+            service.registerAuditOfficer(party, table, handler);
+        } catch (RemoteException e) {
+            System.out.println("ERROR: Remote Exception. Error registering the audit officer");
+        } catch (InvalidElectionStateException e) {
+            System.out.println("Elections are OPEN. Can no longer register an audit officer");
+        }
+        System.out.format("Audit officer of %s registered on polling place %s\n", party.toString(), table);
     }
 }
 

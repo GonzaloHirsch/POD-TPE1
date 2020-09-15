@@ -112,7 +112,7 @@ public class QueryClient {
         write(filename, outputString.toString());
     }
 
-    public static void nationalQuery(ElectionResults results, String filename) {
+    private static void nationalQuery(ElectionResults results, String filename) {
         NationalElectionsResult nationalResults = (NationalElectionsResult) results;
         TreeSet<MutablePair<Party, Long>> scoringRound = nationalResults.getScoringRoundResults();
         TreeSet<MutablePair<Party, Double>> automaticRunoff = nationalResults.getAutomaticRunoffResults();
