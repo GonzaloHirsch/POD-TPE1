@@ -6,6 +6,7 @@ import ar.edu.itba.pod.client.arguments.QueryClientArguments;
 import ar.edu.itba.pod.client.arguments.VotingClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.exceptions.NoVotesRegisteredException;
 import ar.edu.itba.pod.models.*;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.junit.Before;
@@ -45,7 +46,7 @@ public class VoteClientTest {
     }
 
     @Test
-    public void testVoteClient(){
+    public void testVoteClient() throws NoVotesRegisteredException {
         try {
             // Parsing the file
             //            List<Vote> votes = parseInputFile("/home/fpetrikovich/Programacion/POD/POD-TPE1/examples/votes.csv");

@@ -16,11 +16,14 @@ import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 public class Servant implements AuditService, ManagementService, VoteService, QueryService, Serializable {
-    private static final Logger LOG = LoggerFactory.getLogger(Servant.class);
     private static final long serialVersionUID = -2300255720754879234L;
+
+    private static final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();
     private final HashMap<Integer, Table> tables = new HashMap<>();
@@ -131,9 +134,16 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             // Processing the STAR vote for the national election
             this.nationalElection.emitVote(vote.getStarVote());
         }
-        // Notify the vote
-
-        this.notifyPartyVote(vote);
+        // Creating the runnable task
+        Runnable notify = () -> {
+            try {
+                // Notify the vote
+                this.notifyPartyVote(vote);
+            } catch (RemoteException e) {
+                // Notification will no succeed
+            }
+        };
+        this.executor.submit(notify);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////
@@ -248,7 +258,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
         double totalVotes = (double) fptpVotes.values().stream().reduce(0L, Long::sum);
 
-        TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(doubleComparator);
+        TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(this.doubleComparator);
         fptpVotes.forEach((key, value) -> fptpResult.add(new MutablePair<>(key, (((double) value / totalVotes)) * 100.0)));
 
         return new FPTPResult(fptpResult);
