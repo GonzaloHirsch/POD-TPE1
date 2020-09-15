@@ -3,6 +3,7 @@ package ar.edu.itba.pod.server;
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.comparators.DoubleComparator;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
+import ar.edu.itba.pod.exceptions.NoVotesRegisteredException;
 import ar.edu.itba.pod.models.*;
 import ar.edu.itba.pod.server.models.NationalElection;
 import ar.edu.itba.pod.server.models.StateElection;
@@ -151,6 +152,9 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
 
         } else if(electionState == ElectionState.CLOSED) {
             Party winner = this.nationalElection.getNationalElectionWinner();
+            if (winner == null) {
+                throw new NoVotesRegisteredException();
+            }
             return new NationalElectionsResult(
                     this.nationalElection.getSortedScoringRoundResults(),
                     this.nationalElection.getSortedAutomaticRunoffResults(),
@@ -176,7 +180,8 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
         else if(electionState == ElectionState.CLOSED){
             if(stateElection.getFirstRound(province).size() == 0)
-                throw new InvalidElectionStateException("No votes for province " + province);
+                throw new NoVotesRegisteredException();
+
             return new StateElectionsResult(province,
                     this.stateElection.getFirstRound(province),
                     this.stateElection.getSecondRound(province),
@@ -196,8 +201,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             electionState = ElectionState.fromValue(this.electionState.name());
         }
 
-        if (!this.tables.containsKey(tableID)) {
-            throw new IllegalArgumentException("Table with id " + tableID + " does not exist.\n");
+        synchronized (this.tables) {
+            if (!this.tables.containsKey(tableID)) {
+                throw new IllegalArgumentException("Table with id " + tableID + " does not exist.\n");
+            }
         }
 
         if(electionState != ElectionState.PENDING){
@@ -215,8 +222,6 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     .flatMap(t -> t.getVotes().entrySet().stream())
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
-        if(fptpVotes.size() == 0)
-            throw new InvalidElectionStateException("No votes registered");
         return newElectionResults(fptpVotes);
     }
 
@@ -230,12 +235,16 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     .flatMap(t -> t.getVotes().entrySet().stream())
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
-        if (fptpVotes.size() == 0)
-            throw new InvalidElectionStateException("No votes for province " + province);
         return newElectionResults(fptpVotes);
     }
 
     private ElectionResults newElectionResults(Map<Party, Long> fptpVotes) {
+        boolean noVotes = fptpVotes.entrySet().stream().allMatch(e -> e.getValue() == 0L);
+        // Error if there are no votes
+        if(noVotes) {
+            throw new NoVotesRegisteredException();
+        }
+
         double totalVotes = (double) fptpVotes.values().stream().reduce(0L, Long::sum);
 
         TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(doubleComparator);

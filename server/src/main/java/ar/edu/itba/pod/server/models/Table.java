@@ -1,6 +1,7 @@
 package ar.edu.itba.pod.server.models;
 
 import ar.edu.itba.pod.comparators.DoubleComparator;
+import ar.edu.itba.pod.exceptions.NoVotesRegisteredException;
 import ar.edu.itba.pod.models.Party;
 import ar.edu.itba.pod.models.Province;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -49,7 +50,10 @@ public class Table {
 
         // Synchronizing in order to stop incoming votes while calculating the result
         synchronized (this.votes) {
-            if (votes.size() == 0) return new TreeSet<>();
+            boolean noVotes = this.votes.entrySet().stream().allMatch(e -> e.getValue().get() == 0L);
+            if(noVotes) {
+                throw new NoVotesRegisteredException();
+            }
 
             // Summing up the total amount of votes
             double totalVotes = (double) this.votes.values().stream().mapToLong(AtomicLong::get).reduce(0, Long::sum);
