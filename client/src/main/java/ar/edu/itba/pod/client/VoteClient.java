@@ -28,8 +28,10 @@ import java.util.concurrent.Executors;
 public class VoteClient {
     private static final Logger LOG = LoggerFactory.getLogger(VoteClient.class);
 
+    private static final int MAX_THREADS = 10;
+
     // Executor service for all threads
-    private static final ExecutorService executor = Executors.newCachedThreadPool();
+    private static final ExecutorService executor = Executors.newFixedThreadPool(MAX_THREADS);
 
     private static final int TABLE_ID = 0;
     private static final int PROVINCE = 1;
@@ -38,7 +40,7 @@ public class VoteClient {
     private static final int STAR_VOTE_PARTY = 0;
     private static final int STAR_VOTE_VALUE = 1;
 
-    public static void main(final String[] args){
+    public static void main(final String[] args) {
         try {
             VotingClientArguments clientArguments = new VotingClientArguments();
 
@@ -66,41 +68,57 @@ public class VoteClient {
             } catch (IOException e) {
                 System.out.println("ERROR: Invalid file given");
             }
-        } catch (RemoteException re){
+        } catch (RemoteException re) {
             System.out.println("ERROR: Exception in the remote server");
-        } catch (NotBoundException nbe){
+        } catch (NotBoundException nbe) {
             System.out.println("ERROR: Service not bound");
-        } catch (MalformedURLException me){
+        } catch (MalformedURLException me) {
             System.out.println("ERROR: Malformed URL");
         }
     }
 
     /**
      * Emits all the given votes to the service
+     *
      * @param service Service to be used to emit the votes
-     * @param votes List of parsed votes
+     * @param votes   List of parsed votes
      */
-    private static void emitAllVotes(VoteService service, List<Vote> votes){
+    private static void emitAllVotes(VoteService service, List<Vote> votes) {
         // Emit all votes, use a parallel stream
         // TODO: CHECK PERFORMANCE
-        votes.stream().parallel().forEach(v -> emitVote(service, v));
+        Map<Integer, List<Vote>> mappedVotes = new HashMap<>();
+
+        int index = 0, page = -1, targetPageCount = (int) Math.ceil((double) votes.size() / MAX_THREADS);
+        for (Vote v : votes) {
+            if (index % targetPageCount == 0) {
+                page++;
+                mappedVotes.put(page, new ArrayList<>());
+            }
+            mappedVotes.get(page).add(v);
+            index++;
+        }
+
+        mappedVotes.values().stream().parallel().forEach(vs -> emitVotes(service, vs));
     }
 
     /**
      * Emit a single vote using a runnable to a executor service
+     *
      * @param service Service to be used to emit the votes
-     * @param vote Vote to be emitted
+     * @param votes    Votes to be emitted
      */
-    private static void emitVote(VoteService service, Vote vote){
+    private static void emitVotes(VoteService service, List<Vote> votes) {
         // Creating the runnable task
         Runnable r = () -> {
-            try {
-                service.emitVote(vote);
-            } catch (RemoteException | ExecutionException | InterruptedException e) {
-                System.out.println("ERROR: Server error processing vote.");
-            } catch (InvalidElectionStateException e) {
-                System.out.println("ERROR: Elections must be OPEN to emit votes.");
-            }
+            votes.forEach(v -> {
+                try {
+                    service.emitVote(v);
+                } catch (RemoteException | ExecutionException | InterruptedException e) {
+                    System.out.println("ERROR: Server error processing vote.");
+                } catch (InvalidElectionStateException e) {
+                    System.out.println("ERROR: Elections must be OPEN to emit votes.");
+                }
+            });
         };
 
         // Submitting the task
@@ -109,6 +127,7 @@ public class VoteClient {
 
     /**
      * Parses the given file and generates the votes
+     *
      * @param path Path to the file
      * @return List with all the votes
      * @throws IOException if the file path is not valid
@@ -132,15 +151,14 @@ public class VoteClient {
         List<Vote> votes = new ArrayList<>();
 
         // Iterating and splitting in the ; as indicated
-        for (String line : lines)
-        {
+        for (String line : lines) {
             /*
-            * The parts of the string are:
-            *  - 0 -> table id
-            *  - 1 -> province
-            *  - 2 -> STAR & SPAV vote
-            *  - 3 -> FPTP vote
-            * */
+             * The parts of the string are:
+             *  - 0 -> table id
+             *  - 1 -> province
+             *  - 2 -> STAR & SPAV vote
+             *  - 3 -> FPTP vote
+             * */
             voteParts = line.trim().split(";");
 
             // Extracting the values
@@ -153,9 +171,9 @@ public class VoteClient {
             Map<Party, Long> starVote = new HashMap<>();
             List<Party> spavVote = new ArrayList<>();
 
-            if (starAndSpavVotes.length >= 1 && !starAndSpavVotes[0].isEmpty()){
+            if (starAndSpavVotes.length >= 1 && !starAndSpavVotes[0].isEmpty()) {
                 // Iterating through the votes strings
-                for (String s : starAndSpavVotes){
+                for (String s : starAndSpavVotes) {
                     starAndSpavVoteValues = s.split("\\|");
 
                     // Splitting the values

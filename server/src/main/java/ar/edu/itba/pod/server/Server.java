@@ -18,8 +18,6 @@ public class Server {
     private static final Logger LOG = LoggerFactory.getLogger(Server.class);
 
     public static void main(final String[] args) throws RemoteException {
-        LOG.info("Server Starting ...");
-
         // Creating the instance of the servant and exporting it
         final Servant gs = new Servant();
         final Remote remote = UnicastRemoteObject.exportObject(gs, 0);
@@ -30,6 +28,5 @@ public class Server {
         registry.rebind(ManagementService.class.getName(), remote);
         registry.rebind(QueryService.class.getName(), remote);
         registry.rebind(AuditService.class.getName(), remote);
-        LOG.info("Service bound");
     }
 }
