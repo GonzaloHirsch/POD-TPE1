@@ -6,8 +6,6 @@ import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.models.*;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.FileWriter;
 import java.io.IOException;
@@ -59,7 +57,7 @@ public class QueryClient {
                     }
                 }
             } catch (InvalidElectionStateException e) {
-                System.out.println("ERROR: Invalid election state");
+                System.out.println(e.getMessage());
             }
         } catch (RemoteException re) {
             System.out.println("ERROR: Exception in the remote server");
@@ -70,7 +68,7 @@ public class QueryClient {
         }
     }
 
-    private static void stateQuery(ElectionResults stateResults, String filename) {
+    private static void stateQuery(ElectionResults stateResults, String filename) throws InvalidElectionStateException {
         StateElectionsResult stateElectionsResult = (StateElectionsResult) stateResults;
         TreeSet<MutablePair<Party, Double>> firstRound = stateElectionsResult.getFirstRound();
         TreeSet<MutablePair<Party, Double>> secondRound = stateElectionsResult.getSecondRound();

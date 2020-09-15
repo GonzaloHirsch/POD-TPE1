@@ -179,7 +179,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             return this.getProvinceTableResults(province);
         }
         else if(electionState == ElectionState.CLOSED){
-            if(stateElection.getFirstRound(province).size() == 0)
+            if(this.stateElection.getFirstRound(province).size() == 0)
                 throw new NoVotesRegisteredException();
 
             return new StateElectionsResult(province,
