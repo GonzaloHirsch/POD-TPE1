@@ -57,7 +57,7 @@ public class VoteClientTest {
             managementService.openElection();
 
             // Emitting votes
-            emitAllVotes(service, votes);
+            //emitAllVotes(service, votes);
 
             votes.forEach(System.out::println);
 
@@ -72,7 +72,7 @@ public class VoteClientTest {
             stateQuery(service.getProvinceResults(Province.SAVANNAH));
             stateQuery(service.getProvinceResults(Province.TUNDRA));
 
-        } catch (IOException | NotBoundException | InvalidElectionStateException e) {
+        } catch (IOException | NotBoundException | InvalidElectionStateException | NoVotesRegisteredException e) {
             System.out.println("ERROR: Invalid file given " + e.getMessage());
         }
     }

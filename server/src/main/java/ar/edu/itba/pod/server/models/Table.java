@@ -45,7 +45,7 @@ public class Table {
         return votes.get(party).longValue();
     }
 
-    public TreeSet<MutablePair<Party,Double>> getResultsFromTable(){
+    public TreeSet<MutablePair<Party,Double>> getResultsFromTable() throws NoVotesRegisteredException {
         TreeSet<MutablePair<Party, Double>> entries;
 
         // Synchronizing in order to stop incoming votes while calculating the result
