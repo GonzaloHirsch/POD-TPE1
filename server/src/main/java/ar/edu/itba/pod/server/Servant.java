@@ -10,7 +10,6 @@ import ar.edu.itba.pod.server.models.StateElection;
 import ar.edu.itba.pod.server.models.Table;
 import org.apache.commons.lang3.tuple.MutablePair;
 
-import java.io.Serializable;
 import java.rmi.RemoteException;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -18,9 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-public class Servant implements AuditService, ManagementService, VoteService, QueryService, Serializable {
-    private static final long serialVersionUID = -2300255720754879234L;
-
+public class Servant implements AuditService, ManagementService, VoteService, QueryService {
     private static final ExecutorService executor = Executors.newFixedThreadPool(4);
 
     private final Map<Party, Map<Integer, List<PartyVoteHandler>>> auditHandlers = new HashMap<>();

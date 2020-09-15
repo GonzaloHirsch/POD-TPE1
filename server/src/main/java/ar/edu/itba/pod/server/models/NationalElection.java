@@ -9,8 +9,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class NationalElection implements Serializable {
-    private static final long serialVersionUID = 3779368141238758571L;
+public class NationalElection {
     /**
      * List to hold all the votes in order to be able to perform the automatic runoff
      */
