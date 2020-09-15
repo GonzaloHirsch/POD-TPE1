@@ -14,7 +14,6 @@ public class StateElection {
      */
     private final Map<Province, List<List<Party>>> ballots = new HashMap<>();
     private Map<Province, List<Map<Party, Double>>> results = new HashMap<>();
-    // TODO: cambiar luego de preguntar que pasa si no alcanzan ganadores por provincia
     private Map<Province, List<Party>> winnersPerProvince = new HashMap<>();
     private List<Party> winners = new ArrayList<>();
 
@@ -71,6 +70,9 @@ public class StateElection {
     private Map<Party, Double> computeRound(Province province) {
         // 1. First we get ballots for the intended province
         List<List<Party>> provinceBallots = ballots.get(province);
+
+        if(provinceBallots.isEmpty()) return new HashMap<>();
+
         Map<Party, Double> round = new HashMap<>();
         // 2. For every party, we search for approved ballots, then we get real approval value, and sum all together
         for(Party p : Party.values()){
@@ -91,6 +93,8 @@ public class StateElection {
      * @param round to compute a winner
      */
     private void computeWinner(Map<Party, Double> round) {
+        if(round.isEmpty()) return;
+
         round.entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue()))
                 // 1. Filters winners from previous rounds
                 .filter(e -> !winners.contains(e.getKey()))
@@ -160,7 +164,10 @@ public class StateElection {
     private TreeSet<MutablePair<Party, Double>> getNthRound(Province province, Round round) {
         TreeSet<MutablePair<Party, Double>> orderedSet = new TreeSet<>(doubleComparator);
         if(!results.get(province).get(round.getValue()).isEmpty()) {
-            orderedSet.addAll(results.get(province).get(round.getValue()).entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue())).collect(Collectors.toList()));
+            orderedSet.addAll(
+                    results.get(province).get(round.getValue()).entrySet().stream()
+                            .map(e -> new MutablePair<>(e.getKey(), e.getValue())).collect(Collectors.toList())
+            );
         }
         return orderedSet;
     }

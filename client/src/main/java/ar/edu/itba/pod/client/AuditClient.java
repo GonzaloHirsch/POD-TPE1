@@ -44,12 +44,12 @@ public class AuditClient {
     private static void registerAuditOfficer(AuditService service, Party party, int table, PartyVoteHandler handler) {
         try {
             service.registerAuditOfficer(party, table, handler);
+            System.out.format("Audit officer of %s registered on polling place %s\n", party.toString(), table);
         } catch (RemoteException e) {
             System.out.println("ERROR: Remote Exception. Error registering the audit officer");
         } catch (InvalidElectionStateException e) {
             System.out.println("Elections are OPEN. Can no longer register an audit officer");
         }
-        System.out.format("Audit officer of %s registered on polling place %s\n", party.toString(), table);
     }
 }
 

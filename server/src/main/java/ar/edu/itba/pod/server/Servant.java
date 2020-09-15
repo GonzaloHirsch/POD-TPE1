@@ -54,7 +54,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                             .add(handler);
                 }
             } else {
-                throw new InvalidElectionStateException("Elections in progress. Can no longer register an audit officer");
+                throw new InvalidElectionStateException("Elections in progress or closed. Can no longer register an audit officer");
             }
         }
     }
@@ -210,13 +210,13 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             electionState = ElectionState.fromValue(this.electionState.name());
         }
 
-        synchronized (this.tables) {
-            if (!this.tables.containsKey(tableID)) {
-                throw new IllegalArgumentException("Table with id " + tableID + " does not exist.\n");
-            }
-        }
-
         if(electionState != ElectionState.PENDING){
+            synchronized (this.tables) {
+                if (!this.tables.containsKey(tableID)) {
+                    throw new IllegalArgumentException("Table with id " + tableID + " does not exist.");
+                }
+            }
+
             return new FPTPResult(tables.get(tableID).getResultsFromTable());
         }
         throw new InvalidElectionStateException("Elections PENDING. Can not request FPTP results");
@@ -231,6 +231,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     .flatMap(t -> t.getVotes().entrySet().stream())
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
+
         return newElectionResults(fptpVotes);
     }
 
@@ -244,6 +245,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     .flatMap(t -> t.getVotes().entrySet().stream())
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
+
         return newElectionResults(fptpVotes);
     }
 

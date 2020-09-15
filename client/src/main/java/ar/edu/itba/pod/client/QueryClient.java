@@ -59,6 +59,9 @@ public class QueryClient {
                 }
             } catch (InvalidElectionStateException e) {
                 System.out.println("ERROR: Invalid election state");
+                System.out.println(e.getMessage());
+            } catch (IllegalArgumentException e) {
+                System.out.println(e.getMessage());
             } catch (NoVotesRegisteredException e) {
                 System.out.println("No Votes");
             }
