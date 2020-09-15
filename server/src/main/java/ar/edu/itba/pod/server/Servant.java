@@ -132,6 +132,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             this.nationalElection.emitVote(vote.getStarVote());
         }
         // Notify the vote
+
         this.notifyPartyVote(vote);
     }
 
