@@ -97,8 +97,8 @@ public class VoteClient {
             try {
                 service.emitVote(vote);
             } catch (RemoteException | ExecutionException | InterruptedException | InvalidElectionStateException e) {
-                e.printStackTrace();
                 System.out.println("ERROR: Server error processing vote");
+                System.out.println(e.getMessage());
             }
         };
 
