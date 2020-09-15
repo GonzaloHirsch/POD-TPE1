@@ -26,15 +26,15 @@ public class Table {
      * Given some party, increments votes value for that party.
      */
     public void emitVote(Party party) {
-        votes.get(party).getAndIncrement();
+        this.votes.get(party).getAndIncrement();
     }
 
     public Integer getID() {
-        return ID;
+        return this.ID;
     }
 
     public Province getProvince() {
-        return province;
+        return this.province;
     }
 
     public Map<Party, AtomicLong> getVotes() {
@@ -42,7 +42,7 @@ public class Table {
     }
 
     public long getVotes(Party party) {
-        return votes.get(party).longValue();
+        return this.votes.get(party).longValue();
     }
 
     public TreeSet<MutablePair<Party,Double>> getResultsFromTable() throws NoVotesRegisteredException {
@@ -58,8 +58,8 @@ public class Table {
             // Summing up the total amount of votes
             double totalVotes = (double) this.votes.values().stream().mapToLong(AtomicLong::get).reduce(0, Long::sum);
 
-            entries = new TreeSet<>(doubleComparator);
-            votes.forEach((key, value) -> entries.add(new MutablePair<>(key, ((((Long) value.get()).doubleValue()) / totalVotes) * 100.0 )));
+            entries = new TreeSet<>(this.doubleComparator);
+            this.votes.forEach((key, value) -> entries.add(new MutablePair<>(key, ((((Long) value.get()).doubleValue()) / totalVotes) * 100.0 )));
         }
         return entries;
     }
