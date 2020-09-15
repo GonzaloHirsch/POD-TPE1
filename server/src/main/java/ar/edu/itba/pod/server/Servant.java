@@ -9,8 +9,6 @@ import ar.edu.itba.pod.server.models.NationalElection;
 import ar.edu.itba.pod.server.models.StateElection;
 import ar.edu.itba.pod.server.models.Table;
 import org.apache.commons.lang3.tuple.MutablePair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.rmi.RemoteException;
@@ -65,9 +63,9 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         Party party = vote.getFptpVote();
         Integer table = vote.getTable();
 
-        synchronized (auditHandlers) {
-            if (auditHandlers.containsKey(party) && auditHandlers.get(party).containsKey(table)) {
-                for (PartyVoteHandler handler: auditHandlers.get(party).get(table)) {
+        synchronized (this.auditHandlers) {
+            if (this.auditHandlers.containsKey(party) && this.auditHandlers.get(party).containsKey(table)) {
+                for (PartyVoteHandler handler: this.auditHandlers.get(party).get(table)) {
                     handler.onPartyVote(vote);
                 }
             }
@@ -143,7 +141,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                 // Notification will no succeed
             }
         };
-        this.executor.submit(notify);
+        executor.submit(notify);
     }
 
     //////////////////////////////////////////////////////////////////////////////////////////

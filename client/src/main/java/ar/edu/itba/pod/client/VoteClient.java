@@ -96,9 +96,10 @@ public class VoteClient {
         Runnable r = () -> {
             try {
                 service.emitVote(vote);
-            } catch (RemoteException | ExecutionException | InterruptedException | InvalidElectionStateException e) {
-                e.printStackTrace();
-                System.out.println("ERROR: Server error processing vote");
+            } catch (RemoteException | ExecutionException | InterruptedException e) {
+                System.out.println("ERROR: Server error processing vote.");
+            } catch (InvalidElectionStateException e) {
+                System.out.println("ERROR: Elections must be OPEN to emit votes.");
             }
         };
 
@@ -133,7 +134,6 @@ public class VoteClient {
         // Iterating and splitting in the ; as indicated
         for (String line : lines)
         {
-            System.out.println(line);
             /*
             * The parts of the string are:
             *  - 0 -> table id
@@ -156,7 +156,6 @@ public class VoteClient {
             if (starAndSpavVotes.length >= 1 && !starAndSpavVotes[0].isEmpty()){
                 // Iterating through the votes strings
                 for (String s : starAndSpavVotes){
-                    LOG.debug("{} THE VOTE", s);
                     starAndSpavVoteValues = s.split("\\|");
 
                     // Splitting the values

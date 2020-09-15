@@ -31,7 +31,7 @@ public class AuditClient {
 
             UnicastRemoteObject.exportObject(handler, 0);
 
-            registerAuditOfficerThread(service, clientArguments.getParty(), clientArguments.getTableID(), handler);
+            registerAuditOfficer(service, clientArguments.getParty(), clientArguments.getTableID(), handler);
         } catch (RemoteException re) {
             System.out.println("ERROR: Exception in the remote server");
         } catch (NotBoundException nbe) {
@@ -41,7 +41,7 @@ public class AuditClient {
         }
     }
 
-    private static void registerAuditOfficerThread(AuditService service, Party party, int table, PartyVoteHandler handler) {
+    private static void registerAuditOfficer(AuditService service, Party party, int table, PartyVoteHandler handler) {
         try {
             service.registerAuditOfficer(party, table, handler);
         } catch (RemoteException e) {
