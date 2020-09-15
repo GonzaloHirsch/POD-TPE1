@@ -175,7 +175,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
             return this.getProvinceTableResults(province);
         }
         else if(electionState == ElectionState.CLOSED){
-            if(stateElection.getFirstRound(province).size() == 0)
+            if(stateElection.getFirstRound(province).size() == 0 || stateElection.getFirstRound(province).stream().findFirst().get().getRight() < 0)
                 throw new InvalidElectionStateException("No votes for province " + province);
             return new StateElectionsResult(province,
                     this.stateElection.getFirstRound(province),
