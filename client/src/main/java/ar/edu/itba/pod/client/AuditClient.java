@@ -9,6 +9,7 @@ import ar.edu.itba.pod.PartyVoteHandler;
 
 import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NoSuchObjectException;
 import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
@@ -32,6 +33,7 @@ public class AuditClient {
             UnicastRemoteObject.exportObject(handler, 0);
 
             registerAuditOfficer(service, clientArguments.getParty(), clientArguments.getTableID(), handler);
+
         } catch (RemoteException re) {
             System.out.println("ERROR: Exception in the remote server");
         } catch (NotBoundException nbe) {
@@ -41,14 +43,16 @@ public class AuditClient {
         }
     }
 
-    private static void registerAuditOfficer(AuditService service, Party party, int table, PartyVoteHandler handler) {
+    private static void registerAuditOfficer(AuditService service, Party party, int table, PartyVoteHandler handler) throws NoSuchObjectException {
         try {
             service.registerAuditOfficer(party, table, handler);
             System.out.format("Audit officer of %s registered on polling place %s\n", party.toString(), table);
         } catch (RemoteException e) {
+            UnicastRemoteObject.unexportObject(handler, true);
             System.out.println("ERROR: Remote Exception. Error registering the audit officer");
         } catch (InvalidElectionStateException e) {
-            System.out.println("Elections are OPEN. Can no longer register an audit officer");
+            UnicastRemoteObject.unexportObject(handler, true);
+            System.out.println("Elections are OPEN or CLOSED. Can no longer register an audit officer");
         }
     }
 }

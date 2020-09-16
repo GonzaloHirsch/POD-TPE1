@@ -1,28 +1,65 @@
 # POD-TPE1
 
-## Set Up
-After you cloned the project, go to project directory:
+## Building
+To build the project just run:
 ```
-mvn clean package
+mvn clean install
 ```
+
+## Running
+At least three(3) terminals are going to be needed. These terminals are noted A, B, C, etc.
+
+**NOTE**: This commands are meant to be run from the root of the project.
+
 From terminal A run:
 ```
-cd server/target/ && tar -xzf POD-TPE1-server-1.0-SNAPSHOT-bin.tar.gz && cd POD-TPE1-server-1.0-SNAPSHOT && chmod u+x $(ls | egrep run-)
-```
-Start Registry:
-```
+cd server/target/
+tar -xzf POD-TPE1-server-1.0-SNAPSHOT-bin.tar.gz
+cd POD-TPE1-server-1.0-SNAPSHOT
+chmod u+x $(ls | egrep run-)
 ./run-registry
 ```
+
+The condensed command is:
+```
+cd server/target/ && tar -xzf POD-TPE1-server-1.0-SNAPSHOT-bin.tar.gz && cd POD-TPE1-server-1.0-SNAPSHOT && chmod u+x $(ls | egrep run-) && ./run-registry
+```
+
 From terminal B run:
 ```
-cd server/target/POD-TPE1-server-1.0-SNAPSHOT/ && ./run-server
+cd server/target/POD-TPE1-server-1.0-SNAPSHOT
+./run-server
 ```
+
+The condensed command is:
+```
+cd server/target/POD-TPE1-server-1.0-SNAPSHOT && ./run-server
+```
+
 From terminal C run:
+```
+cd client/target/
+tar -xzf POD-TPE1-client-1.0-SNAPSHOT-bin.tar.gz
+cd POD-TPE1-client-1.0-SNAPSHOT
+chmod u+x $(ls | egrep run-)
+```
+
+The condensed command is:
 ```
 cd client/target/ && tar -xzf POD-TPE1-client-1.0-SNAPSHOT-bin.tar.gz && cd POD-TPE1-client-1.0-SNAPSHOT && chmod u+x $(ls | egrep run-)
 ```
 
 ## Command Examples
+This examples are meant to be used from the directory:
+```
+client/target/POD-TPE1-client-1.0-SNAPSHOT
+```
+
+So from the root of the project run:
+```
+cd client/target/POD-TPE1-client-1.0-SNAPSHOT
+```
+
 ### Vote Client
 To run this, a _vote.csv_ file is used from the _/examples_ directory:
 ```
@@ -49,20 +86,20 @@ To check STATUS of the elections, run:
 
 To check national results, run:
 ```
-./run-query -DserverAddress=127.0.0.1:1099 -DoutPath=national.csv
+./run-query -DserverAddress=127.0.0.1:1099 -DoutPath=../../../examples/national_result.csv
 ```
 
 To check state results, run:
 ```
-./run-query -DserverAddress=127.0.0.1:1099 -Dstate=SAVANNAH -DoutPath=savannah.csv
-./run-query -DserverAddress=127.0.0.1:1099 -Dstate=TUNDRA -DoutPath=tundra.csv
-./run-query -DserverAddress=127.0.0.1:1099 -Dstate=JUNGLE -DoutPath=jungle.csv
+./run-query -DserverAddress=127.0.0.1:1099 -Dstate=SAVANNAH -DoutPath=../../../examples/savannah_result.csv
+./run-query -DserverAddress=127.0.0.1:1099 -Dstate=TUNDRA -DoutPath=../../../examples/tundra_result.csv
+./run-query -DserverAddress=127.0.0.1:1099 -Dstate=JUNGLE -DoutPath=../../../examples/jungle_result.csv
 ```
 
 To check table results, run:
 ```
-./run-query -DserverAddress=127.0.0.1:1099 -Did=1000 -DoutPath=table1000.csv
-./run-query -DserverAddress=127.0.0.1:1099 -Did=1001 -DoutPath=table1001.csv
+./run-query -DserverAddress=127.0.0.1:1099 -Did=1000 -DoutPath=../../../examples/table1000_result.csv
+./run-query -DserverAddress=127.0.0.1:1099 -Did=1001 -DoutPath=../../../examples/table1001_result.csv
 ```
 
 ### Audit Client
@@ -72,21 +109,14 @@ To check table results, run:
 ./run-fiscal -DserverAddress=127.0.0.1:1099 -Did=1002 -Dparty=BUFFALO
 ```
 
-## Fast Running Commands
+## Authors
 
-From terminal A run:
-```
-cd server/target/ && tar -xzf POD-TPE1-server-1.0-SNAPSHOT-bin.tar.gz && cd POD-TPE1-server-1.0-SNAPSHOT && chmod u+x $(ls | egrep run-)
-```
+Second Semester of 2020 - ITBA
 
-In terminal B run:
-```
-cd client/target/ && tar -xzf POD-TPE1-client-1.0-SNAPSHOT-bin.tar.gz && cd POD-TPE1-client-1.0-SNAPSHOT && chmod u+x $(ls | egrep run-)
-```
+**Florencia Petrikovich** - fpetrikovich@itba.edu.ar
 
-Quickly move to directories
-```
-cd server/target/POD-TPE1-server-1.0-SNAPSHOT
-cd client/target/POD-TPE1-client-1.0-SNAPSHOT
-cd ../../../
-```
+**Gonzalo Hirsch** - ghirsch@itba.edu.ar
+
+**Marina Fuster** - mfuster@itba.edu.ar
+
+**Gastón Lifschitz** - glifschitz@itba.edu.ar

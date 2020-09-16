@@ -81,3 +81,5 @@ client/target/
 *.class
 
 examples/
+
+.DS_Store

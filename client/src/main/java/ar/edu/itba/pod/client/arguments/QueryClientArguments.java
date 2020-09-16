@@ -37,6 +37,11 @@ public class QueryClientArguments {
     public void parseArguments() throws InvalidArgumentsException {
         Properties props = System.getProperties();
 
+        if (props.containsKey(STATE_KEY) && props.containsKey(ID_KEY)){
+            this.printHelp();
+            throw new InvalidArgumentsException("Cannot specify both table id and state");
+        }
+
         // Try to obtain the state parameter
         if (props.containsKey(STATE_KEY)){
             this.provinceName = props.getProperty(STATE_KEY);
