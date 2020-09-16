@@ -45,10 +45,6 @@ public class Table {
         return this.votes.get(party).longValue();
     }
 
-    public long votesQuantity() {
-        return this.votes.entrySet().stream().mapToLong(p -> p.getValue().longValue()).sum();
-    }
-
     public TreeSet<MutablePair<Party,Double>> getResultsFromTable() throws NoVotesRegisteredException {
         TreeSet<MutablePair<Party, Double>> entries;
 

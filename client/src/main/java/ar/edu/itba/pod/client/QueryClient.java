@@ -40,13 +40,13 @@ public class QueryClient {
                     if (results.getVotingType() == VotingType.NATIONAL) {
                         nationalQuery(results, clientArguments.getOutputPath());
                     } else {
-                        ftptQuery(results, clientArguments.getOutputPath(), false);
+                        ftptQuery(results, clientArguments.getOutputPath());
                     }
                 }
                 // This is the TABLE election
                 else if (clientArguments.getTableID() != null) {
                     ElectionResults tableResults = service.getTableResults(clientArguments.getTableID());
-                    ftptQuery(tableResults, clientArguments.getOutputPath(), true);
+                    ftptQuery(tableResults, clientArguments.getOutputPath());
                 }
                 // This is the STATE election
                 else {
@@ -54,7 +54,7 @@ public class QueryClient {
                     if (stateResults.getVotingType() == VotingType.STATE) {
                         stateQuery(stateResults, clientArguments.getOutputPath());
                     } else {
-                        ftptQuery(stateResults, clientArguments.getOutputPath(), false);
+                        ftptQuery(stateResults, clientArguments.getOutputPath());
                     }
                 }
             } catch (InvalidElectionStateException e) {
@@ -102,14 +102,14 @@ public class QueryClient {
         return sb.toString();
     }
 
-    private static void ftptQuery(ElectionResults results, String filename, boolean showWinner) {
+    private static void ftptQuery(ElectionResults results, String filename) {
         FPTPResult fptpResult = (FPTPResult) results;
 
         StringBuilder outputString = new StringBuilder();
         outputString.append("Percentage;Party");
         outputString.append(getStringFromDoubleTreeSet(fptpResult.getFptpResults(), true));
 
-        if (showWinner) {
+        if (fptpResult.getElectionState() == ElectionState.CLOSED) {
             outputString.append("\nWinner\n").append(fptpResult.getWinner());
         }
         write(filename, outputString.toString());

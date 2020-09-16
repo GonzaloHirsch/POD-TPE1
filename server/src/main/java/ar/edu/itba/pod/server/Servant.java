@@ -157,7 +157,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
 
         if(electionState == ElectionState.OPEN) {
-            return this.getAllTableResults();
+            return this.getAllTableResults(electionState);
 
         } else if(electionState == ElectionState.CLOSED) {
             Party winner = this.nationalElection.getNationalElectionWinner();
@@ -185,7 +185,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         }
 
         if(electionState == ElectionState.OPEN) {
-            return this.getProvinceTableResults(province);
+            return this.getProvinceTableResults(province, electionState);
         }
         else if(electionState == ElectionState.CLOSED){
             if(this.stateElection.getFirstRound(province).size() == 0)
@@ -217,14 +217,13 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                 }
             }
 
-            return new FPTPResult(tables.get(tableID).getResultsFromTable());
+            return new FPTPResult(tables.get(tableID).getResultsFromTable(), electionState);
         }
         throw new InvalidElectionStateException("Elections PENDING. Can not request FPTP results");
     }
 
     // Will only be called when getNationalResults is called and elections are still open
-    @Override
-    public ElectionResults getAllTableResults() throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
+    private ElectionResults getAllTableResults(ElectionState electionState) throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
         Map<Party, Long> fptpVotes;
         synchronized (this.tables) {
             fptpVotes = this.tables.values().stream()
@@ -232,12 +231,11 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
 
-        return newElectionResults(fptpVotes);
+        return newElectionResults(fptpVotes, electionState);
     }
 
     // Will only be called when getProvinceResults is called and elections are still open
-    @Override
-    public ElectionResults getProvinceTableResults(Province province) throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
+    private ElectionResults getProvinceTableResults(Province province, ElectionState electionState) throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
         Map<Party, Long> fptpVotes;
         synchronized (this.tables) {
             fptpVotes = this.tables.values().stream()
@@ -246,10 +244,10 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
                     .collect(Collectors.groupingBy(Map.Entry::getKey, Collectors.summingLong(e -> e.getValue().get())));
         }
 
-        return newElectionResults(fptpVotes);
+        return newElectionResults(fptpVotes, electionState);
     }
 
-    private ElectionResults newElectionResults(Map<Party, Long> fptpVotes) throws NoVotesRegisteredException {
+    private ElectionResults newElectionResults(Map<Party, Long> fptpVotes, ElectionState electionState) throws NoVotesRegisteredException {
         boolean noVotes = fptpVotes.entrySet().stream().allMatch(e -> e.getValue() == 0L);
         // Error if there are no votes
         if(noVotes) {
@@ -261,6 +259,6 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         TreeSet<MutablePair<Party, Double>> fptpResult = new TreeSet<>(this.doubleComparator);
         fptpVotes.forEach((key, value) -> fptpResult.add(new MutablePair<>(key, (((double) value / totalVotes)) * 100.0)));
 
-        return new FPTPResult(fptpResult);
+        return new FPTPResult(fptpResult, electionState);
     }
 }
