@@ -30,8 +30,9 @@ public class StateElection {
      * @param vote List of chosen candidate parties
      */
     public void emitVote(Province province, List<Party> vote) {
-        synchronized (this.ballots) {
-            this.ballots.get(province).add(vote);
+        List<List<Party>> ballotsPerProvince = this.ballots.get(province);
+        synchronized (ballotsPerProvince) {
+            ballotsPerProvince.add(vote);
         }
     }
 
@@ -97,7 +98,7 @@ public class StateElection {
 
         round.entrySet().stream().map(e -> new MutablePair<>(e.getKey(), e.getValue()))
                 // 1. Filters winners from previous rounds
-                .filter(e -> !winners.contains(e.getKey()))
+                .filter(e -> e.getValue()>0D && !winners.contains(e.getKey()))
                 // 2. From remaining, finds the winner
                 .min(doubleComparator)
                 // 3. Adds new winner for a specific round

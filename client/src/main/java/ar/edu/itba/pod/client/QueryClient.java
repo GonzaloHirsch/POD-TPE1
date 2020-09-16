@@ -3,6 +3,7 @@ package ar.edu.itba.pod.client;
 import ar.edu.itba.pod.QueryService;
 import ar.edu.itba.pod.client.arguments.QueryClientArguments;
 import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.exceptions.InsufficientWinnersException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.exceptions.NoVotesRegisteredException;
 import ar.edu.itba.pod.models.*;
@@ -63,9 +64,10 @@ public class QueryClient {
                 }
             } catch (InvalidElectionStateException e) {
                 System.out.println("ERROR: Invalid election state");
-                System.out.println(e.getMessage());
+            } catch (InsufficientWinnersException e) {
+                System.out.println("ERROR: Insufficient province winners");
             } catch (IllegalArgumentException e) {
-                System.out.println(e.getMessage());
+                System.out.println("ERROR: Invalid argument exception");
             } catch (NoVotesRegisteredException e) {
                 System.out.println("No Votes");
             }

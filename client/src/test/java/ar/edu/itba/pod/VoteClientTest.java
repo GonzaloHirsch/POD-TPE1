@@ -1,10 +1,7 @@
 package ar.edu.itba.pod;
 
-import ar.edu.itba.pod.client.QueryClient;
 import ar.edu.itba.pod.client.VoteClient;
-import ar.edu.itba.pod.client.arguments.QueryClientArguments;
-import ar.edu.itba.pod.client.arguments.VotingClientArguments;
-import ar.edu.itba.pod.client.exceptions.InvalidArgumentsException;
+import ar.edu.itba.pod.exceptions.InsufficientWinnersException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.exceptions.NoVotesRegisteredException;
 import ar.edu.itba.pod.models.*;
@@ -72,7 +69,7 @@ public class VoteClientTest {
             stateQuery(service.getProvinceResults(Province.SAVANNAH));
             stateQuery(service.getProvinceResults(Province.TUNDRA));
 
-        } catch (IOException | NotBoundException | InvalidElectionStateException | NoVotesRegisteredException e) {
+        } catch (IOException | NotBoundException | InvalidElectionStateException | NoVotesRegisteredException | InsufficientWinnersException e) {
             System.out.println("ERROR: Invalid file given " + e.getMessage());
         }
     }

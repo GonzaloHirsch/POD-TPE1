@@ -2,10 +2,12 @@ package ar.edu.itba.pod.server;
 
 import ar.edu.itba.pod.*;
 import ar.edu.itba.pod.comparators.DoubleComparator;
+import ar.edu.itba.pod.exceptions.InsufficientWinnersException;
 import ar.edu.itba.pod.exceptions.InvalidElectionStateException;
 import ar.edu.itba.pod.exceptions.NoVotesRegisteredException;
 import ar.edu.itba.pod.models.*;
 import ar.edu.itba.pod.server.models.NationalElection;
+import ar.edu.itba.pod.server.models.Round;
 import ar.edu.itba.pod.server.models.StateElection;
 import ar.edu.itba.pod.server.models.Table;
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -174,7 +176,7 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
     }
 
     @Override
-    public ElectionResults getProvinceResults(Province province) throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException {
+    public ElectionResults getProvinceResults(Province province) throws RemoteException, InvalidElectionStateException, NoVotesRegisteredException, InsufficientWinnersException {
         ElectionState electionState;
 
         // In order to avoid locking the whole if blocks, I pass the value of the election to a local variable
@@ -188,6 +190,9 @@ public class Servant implements AuditService, ManagementService, VoteService, Qu
         else if(electionState == ElectionState.CLOSED){
             if(this.stateElection.getFirstRound(province).size() == 0)
                 throw new NoVotesRegisteredException();
+
+            if(this.stateElection.getWinners(province).length != Round.values().length)
+                throw new InsufficientWinnersException();
 
             return new StateElectionsResult(province,
                     this.stateElection.getFirstRound(province),
